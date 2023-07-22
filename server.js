@@ -15,12 +15,22 @@ app.use(express.json()); //send data in json format to frontEnd
 import { mongoConnect } from "./src/config/mongoConfig.js";
 mongoConnect(); //connecting to mongoDB
 
-import userRouter from "./src/routers/userRouter.js";
-app.use("/api/v1/user", userRouter);
+// api
+import adminRouter from "./src/routers/adminRouter.js";
+app.use("/api/v1/admin", adminRouter);
 app.get("/", (req, res) => {
   res.json({
     status: "success",
     message: "Server is live",
+  });
+});
+
+app.use((error, req, res, next) => {
+  const code = error.statusCode || 500;
+  res.status(code).json({
+    status: "error",
+    message: error.message,
+    code,
   });
 });
 
