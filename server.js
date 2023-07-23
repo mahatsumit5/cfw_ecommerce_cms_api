@@ -26,11 +26,11 @@ app.get("/", (req, res) => {
 });
 
 app.use((error, req, res, next) => {
+  console.log(error);
   const code = error.statusCode || 500;
   res.status(code).json({
     status: "error",
     message: error.message,
-    code,
   });
 });
 

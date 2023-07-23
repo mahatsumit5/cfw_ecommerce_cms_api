@@ -10,7 +10,7 @@ export const getAdmin = () => {
   return AdminSchema.find();
 };
 export const updateById = (_id, userObj) => {
-  return AdminSchema.findByIdAndUpdate(_id, userObj);
+  return AdminSchema.findByIdAndUpdate(_id, userObj, { new: true });
 };
 
 export const getAdminByEmail = (email) => {
