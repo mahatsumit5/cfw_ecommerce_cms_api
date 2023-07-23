@@ -49,6 +49,7 @@ router.post("/login", async (req, res) => {
     const passwordMatched = checkPassword(password, user.password);
     if (passwordMatched) {
       user.password = undefined;
+      user.verificationCode = undefined;
       return res.json({
         status: "success",
         message: `Welcome Back ${user.fName} ${user.lName}`,
@@ -71,7 +72,6 @@ router.put("/verify", async (req, res, next) => {
     const user = await getAdminByEmail(email);
     if (user) {
       if (user?.isVerified) {
-        await accountVerifiedEmail(user);
         throw new Error("Already verified");
         return;
       }
@@ -81,6 +81,8 @@ router.put("/verify", async (req, res, next) => {
           isVerified: true,
           verificationCode: "",
         });
+        await accountVerifiedEmail(user);
+
         result?._id
           ? res.json({
               status: "success",

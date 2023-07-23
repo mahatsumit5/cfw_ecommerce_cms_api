@@ -1,11 +1,11 @@
 import nodemailer from "nodemailer";
 // smtp configurations
 
-export const accountVerificationEmail = async (user) => {
+export const accountVerificationEmail = async (user, link) => {
   const { email, fName, lName } = user;
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: +process.env.SMTP_PORT,
+    port: process.env.SMTP_PORT,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
@@ -47,7 +47,7 @@ export const accountVerifiedEmail = async (user) => {
   const { email, fName, lName } = user;
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: +process.env.SMTP_PORT,
+    port: process.env.SMTP_PORT,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
@@ -69,12 +69,8 @@ Your accoun has been verified.
 please follow the link below to login into your account.
 </p>
 <a href= ${process.env.WEB_DOMAIN}>Sign In</a>
-<br />
-<br />
-
-<br />
-<br />
-
+<br /><br />
+<br /><br />
 <p>
     Regareds, <br />
     CFW Store <br />

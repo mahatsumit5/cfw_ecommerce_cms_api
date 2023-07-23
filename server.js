@@ -18,6 +18,9 @@ mongoConnect(); //connecting to mongoDB
 // api
 import adminRouter from "./src/routers/adminRouter.js";
 app.use("/api/v1/admin", adminRouter);
+
+import categoryRouter from "./src/routers/categoryRouter.js";
+app.use("/api/v1/category", categoryRouter);
 app.get("/", (req, res) => {
   res.json({
     status: "success",
