@@ -53,13 +53,13 @@ router.post("/", async (req, res, next) => {
 });
 router.put("/", async (req, res, next) => {
   try {
-    const { __v, value, ...rest } = req.body;
+    const { value, ...rest } = req.body;
     console.log(req.body);
     const result = await updateCatagory(value, rest);
     const { title, status } = result;
     result?._id
       ? res.json({
-          status: "info",
+          status: "success",
           message: `${title} is ${status}`,
         })
       : res.json({
