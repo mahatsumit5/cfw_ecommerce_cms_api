@@ -1,4 +1,4 @@
-import { getAdminByEmail } from "../model/admin/adminModel.js";
+import { getAdminByEmail, getOneAdmin } from "../model/admin/adminModel.js";
 import {
   createAccessJWT,
   verifyAccessJWT,
@@ -16,8 +16,6 @@ export const auth = async (req, res, next) => {
     if (decoded?.email) {
       // check if the user is active
       const user = await getAdminByEmail(decoded.email);
-      console.log(user);
-
       if (user?._id && user?.status === "active") {
         user.password = undefined;
         user.refreshJWT = undefined;
@@ -47,11 +45,8 @@ export const refreshAuth = async (req, res, next) => {
   try {
     // 1.get  the refreshAuth
     const { authorization } = req.headers;
-
     // 2.decode the jwt
-
     const decoded = verifyRefreshJWT(authorization);
-
     // 3. extract email and get user by email
     if (decoded?.email) {
       // 4. check fif the user is active

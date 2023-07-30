@@ -16,8 +16,8 @@ import {
 } from "../utils/nodeMailer.js";
 import { v4 as uuidv4 } from "uuid";
 import { createAccessJWT, createRefreshJWT } from "../utils/jwt.js";
-import { auth } from "../middleware/authMiddleware.js";
-import { deleteSession } from "../model/session/sessionModel.js";
+import { auth, refreshAuth } from "../middleware/authMiddleware.js";
+import { findOneAndDelete } from "../model/session/sessionModel.js";
 const router = express.Router();
 
 router.get("/", auth, (req, res, next) => {
@@ -67,13 +67,11 @@ router.post("/login", loginValidation, async (req, res) => {
   if (user?._id) {
     //check the passwords
     const passwordMatched = checkPassword(password, user.password);
-
     //create 2 jwts:
     //access token for protected routes and refresh token to generate new access tokens after expiration of current one
     if (passwordMatched) {
       const accessJWT = await createAccessJWT(email);
       const refreshJWT = await createRefreshJWT(email);
-
       return res.json({
         status: "success",
         message: `Welcome Back ${user.fName} ${user.lName}`,
@@ -134,17 +132,19 @@ router.put(
   }
 );
 
+router.get("/get-accessjwt", refreshAuth);
 router.post("/logout", async (req, res, next) => {
   try {
     const { accessJWT, refreshJWT, _id } = req.body;
-    accessJWT && deleteSession(accessJWT);
+    await findOneAndDelete(accessJWT);
 
     if (refreshJWT && _id) {
       const data = await updateById(_id, { refreshJWT: "" });
+      data?._id &&
+        res.json({
+          status: "success",
+        });
     }
-    res.json({
-      status: "success",
-    });
   } catch (error) {
     next(error);
   }
