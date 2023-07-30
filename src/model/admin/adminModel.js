@@ -13,6 +13,9 @@ export const updateById = (_id, userObj) => {
   return AdminSchema.findByIdAndUpdate(_id, userObj, { new: true });
 };
 
+export const getOneAdmin = (filter) => {
+  return AdminSchema.findOne(filter);
+};
 export const getAdminByEmail = (email) => {
   return AdminSchema.findOne({ email });
 };

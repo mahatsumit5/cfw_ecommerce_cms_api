@@ -1,32 +1,36 @@
 // import
 import jwt from "jsonwebtoken";
 import { insertNewSession } from "../model/session/sessionModel.js";
-import {
-  getAdminByEmailandUpdate,
-  updateById,
-} from "../model/admin/adminModel.js";
-export const createWebToken = async (email) => {
-  //expires every 15minutes
-  const token = jwt.sign({ email }, process.env.JWT_ACCESS_SECRET, {
-    expiresIn: "15m",
-  });
+import { getAdminByEmailandUpdate } from "../model/admin/adminModel.js";
 
+//// create accessJWT and store in session table: short live 15m
+export const createAccessJWT = async (email) => {
+  //expires every 5minutes
+  const token = jwt.sign({ email }, process.env.JWT_ACCESS_SECRET, {
+    expiresIn: "5m",
+  });
   await insertNewSession({ token, associate: email });
   return token;
 };
-export const createRefreshToken = async (email) => {
+
+export const verifyAccessJWT = (token) => {
+  return jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+};
+//// create refreshJWT and store with user data in user table: long live 30d
+
+export const createRefreshJWT = async (email) => {
   ///expires every 30days
-  const refreshToken = jwt.sign({ email }, process.env.JWT_REFRESH_SECRET, {
+  const refreshJWT = jwt.sign({ email }, process.env.JWT_REFRESH_SECRET, {
     expiresIn: "30d",
   });
 
   const upadatedUSer = await getAdminByEmailandUpdate(
     { email },
-    { refreshJWT: refreshToken }
+    { refreshJWT }
   );
-  return refreshToken;
+  return refreshJWT;
 };
 
-export const decodeAccessJWT = async (token) => {
-  return jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+export const verifyRefreshJWT = (token) => {
+  return jwt.verify(token, process.env.JWT_REFRESH_SECRET);
 };
