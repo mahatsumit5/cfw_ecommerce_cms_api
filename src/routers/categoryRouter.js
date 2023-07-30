@@ -6,6 +6,7 @@ import {
   updateCatagory,
 } from "../model/categories/categoryModel.js";
 import slugify from "slugify";
+
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {

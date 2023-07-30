@@ -16,9 +16,21 @@ import {
 } from "../utils/nodeMailer.js";
 import { v4 as uuidv4 } from "uuid";
 import { createRefreshToken, createWebToken } from "../utils/jwt.js";
-import { insertNewSession } from "../model/session/sessionModel.js";
+import { auth } from "../middleware/authMiddleware.js";
 // create new admin
-router.post("/", newAdminValidation, async (req, res, next) => {
+
+router.get("/", auth, (req, res, next) => {
+  try {
+    res.json({
+      status: "success",
+      message: "userInfo",
+      user: req.userInfo, //comes from auth middleware
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+router.post("/", auth, newAdminValidation, async (req, res, next) => {
   try {
     req.body.password = hashPassword(req.body.password);
     req.body.verificationCode = uuidv4();

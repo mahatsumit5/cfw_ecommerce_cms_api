@@ -16,7 +16,6 @@ export const newAdminValidation = (req, res, next) => {
         })
         .required(),
       password: SHORTSTEREQ.min(8),
-      address: SHORTSTEREQ,
 
       //check data agains the rule
     });
