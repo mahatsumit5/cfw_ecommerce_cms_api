@@ -60,33 +60,37 @@ router.post("/", auth, newAdminValidation, async (req, res, next) => {
 });
 
 // login Admin
-router.post("/login", loginValidation, async (req, res) => {
-  const { email, password } = req.body;
-  //find the user by email
-  const user = await getAdminByEmail(email);
-  if (user?._id) {
-    //check the passwords
-    const passwordMatched = checkPassword(password, user.password);
-    //create 2 jwts:
-    //access token for protected routes and refresh token to generate new access tokens after expiration of current one
-    if (passwordMatched) {
-      const accessJWT = await createAccessJWT(email);
-      const refreshJWT = await createRefreshJWT(email);
+router.post("/login", loginValidation, async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    //find the user by email
+    const user = await getAdminByEmail(email);
+    if (user?._id) {
+      //check the passwords
+      const passwordMatched = checkPassword(password, user.password);
+      //create 2 jwts:
+      //access token for protected routes and refresh token to generate new access tokens after expiration of current one
+      if (passwordMatched) {
+        const accessJWT = await createAccessJWT(email);
+        const refreshJWT = await createRefreshJWT(email);
+        return res.json({
+          status: "success",
+          message: `Welcome Back ${user.fName} ${user.lName}`,
+          token: { accessJWT, refreshJWT },
+        });
+      }
       return res.json({
-        status: "success",
-        message: `Welcome Back ${user.fName} ${user.lName}`,
-        token: { accessJWT, refreshJWT },
+        status: "warning",
+        message: "Password Do Not Match",
       });
     }
-    return res.json({
-      status: "warning",
-      message: "Password Do Not Match",
+    res.status(401).json({
+      status: "error",
+      message: "Invalid Email or Password!",
     });
+  } catch (error) {
+    next(error);
   }
-  res.status(401).json({
-    status: "error",
-    message: "Invalid Email or Password!",
-  });
 });
 router.put(
   "/verify",

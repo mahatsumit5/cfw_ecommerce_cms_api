@@ -15,7 +15,7 @@ router.get("/", async (req, res, next) => {
 
     res.json({
       status: "success",
-      message: "Results received      ",
+      message: "Results received",
       result,
     });
   } catch (error) {
@@ -55,7 +55,6 @@ router.post("/", async (req, res, next) => {
 router.put("/", async (req, res, next) => {
   try {
     const { value, ...rest } = req.body;
-    console.log(req.body);
     const result = await updateCatagory(value, rest);
     const { title, status } = result;
     result?._id

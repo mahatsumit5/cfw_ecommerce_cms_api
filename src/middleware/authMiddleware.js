@@ -31,7 +31,7 @@ export const auth = async (req, res, next) => {
   } catch (error) {
     if (error.message.includes("jwt expired")) {
       error.statusCode = 403;
-      error.message = error.message;
+      error.message = "Your token has expired. Please login Again";
     }
     if (error.message.includes("invalid signature")) {
       error.statusCode = 401;
