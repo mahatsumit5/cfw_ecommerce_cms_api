@@ -12,6 +12,9 @@ export const getAdmin = () => {
 export const updateById = (_id, userObj) => {
   return AdminSchema.findByIdAndUpdate(_id, userObj, { new: true });
 };
+export const updateByJWT = (jwt, obj) => {
+  return AdminSchema.findOneAndUpdate(jwt, obj, { new: true });
+};
 
 export const getOneAdmin = (filter) => {
   return AdminSchema.findOne(filter);

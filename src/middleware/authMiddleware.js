@@ -45,8 +45,10 @@ export const refreshAuth = async (req, res, next) => {
   try {
     // 1.get  the refreshAuth
     const { authorization } = req.headers;
+    console.log(authorization);
     // 2.decode the jwt
     const decoded = verifyRefreshJWT(authorization);
+    console.log(decoded);
     // 3. extract email and get user by email
     if (decoded?.email) {
       // 4. check fif the user is active

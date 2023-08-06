@@ -3,6 +3,7 @@ import {
   addAdmin,
   getAdminByEmail,
   updateById,
+  updateByJWT,
 } from "../model/admin/adminModel.js";
 import { checkPassword, hashPassword } from "../utils/bcrypt.js";
 import {
@@ -144,6 +145,22 @@ router.post("/logout", async (req, res, next) => {
 
     if (refreshJWT && _id) {
       const data = await updateById(_id, { refreshJWT: "" });
+      data?._id &&
+        res.json({
+          status: "success",
+        });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+router.post("/logoutUser", async (req, res, next) => {
+  try {
+    const { accessJWT, refreshJWT } = req.body;
+    await findOneAndDelete(accessJWT);
+
+    if (refreshJWT) {
+      const data = await updateByJWT({ refreshJWT }, { refreshJWT: "" });
       data?._id &&
         res.json({
           status: "success",
