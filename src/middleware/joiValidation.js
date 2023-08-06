@@ -77,3 +77,27 @@ export const newAdminVerificationValidation = (req, res, next) => {
     next(error);
   }
 };
+
+// payment methods validation
+
+export const newPaymentvalidation = (req, res, next) => {
+  try {
+    //define the schema
+
+    const schema = Joi.object({
+      title: Joi.string().min(2).max(50).required(),
+      description: Joi.string().min(1).max(100).required(),
+
+      //check data agains the rule
+    });
+    const { error } = schema.validate(req.body);
+    error
+      ? res.json({
+          status: "error",
+          message: error.message,
+        })
+      : next();
+  } catch (error) {
+    next(error);
+  }
+};

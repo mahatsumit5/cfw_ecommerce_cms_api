@@ -11,7 +11,7 @@ export const auth = async (req, res, next) => {
     const { authorization } = req.headers;
     // decode the JWT which tell key is valid and expired or not
     const decoded = verifyAccessJWT(authorization);
-    //decoded have three properties one of them being user email
+    //decoded have three properties one of them being user email expiry data
     // extrat email and get get user by email
     if (decoded?.email) {
       // check if the user is active

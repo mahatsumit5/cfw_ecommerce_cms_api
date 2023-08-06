@@ -17,10 +17,12 @@ mongoConnect(); //connecting to mongoDB
 // api
 import adminRouter from "./src/routers/adminRouter.js";
 import categoryRouter from "./src/routers/categoryRouter.js";
+import paymentRouter from "./src/routers/paymentRouter.js";
 import { auth } from "./src/middleware/authMiddleware.js";
 
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/category", auth, categoryRouter);
+app.use("/api/v1/payment", auth, paymentRouter);
 
 app.get("/", (req, res) => {
   res.json({
