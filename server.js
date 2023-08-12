@@ -1,6 +1,6 @@
 import express from "express";
 const app = express();
-const PORT = 8000 || process.env.PORT;
+const PORT = process.env.PORT || 8000;
 
 import dotenv from "dotenv";
 dotenv.config(); //using dotenv to process dotenv key
@@ -14,15 +14,22 @@ app.use(morgan("dev")); // for development purpose to see
 app.use(express.json()); //send data in json format to frontEnd
 mongoConnect(); //connecting to mongoDB
 
+import path from "path";
+
+const __dirname = path.resolve();
+console.log(__dirname);
+// convert public to static
+app.use(express.static(__dirname + "/public"));
 // api
 import adminRouter from "./src/routers/adminRouter.js";
 import categoryRouter from "./src/routers/categoryRouter.js";
 import paymentRouter from "./src/routers/paymentRouter.js";
 import { auth } from "./src/middleware/authMiddleware.js";
-
+import productRouter from "./src/routers/productRouter.js";
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/category", auth, categoryRouter);
 app.use("/api/v1/payment", auth, paymentRouter);
+app.use("/api/v1/product", auth, productRouter);
 
 app.get("/", (req, res) => {
   res.json({
