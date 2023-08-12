@@ -7,6 +7,9 @@ export const addProduct = (obj) => {
 export const getProducts = () => {
   return productSchema.find();
 };
+export const getProductById = (_id) => {
+  return productSchema.findOne(_id);
+};
 export const deleteProductById = (_id) => {
   return productSchema.findByIdAndDelete(_id);
 };

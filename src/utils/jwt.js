@@ -7,7 +7,7 @@ import { getAdminByEmailandUpdate } from "../model/admin/adminModel.js";
 export const createAccessJWT = async (email) => {
   //expires every 5minutes
   const token = jwt.sign({ email }, process.env.JWT_ACCESS_SECRET, {
-    expiresIn: "1m",
+    expiresIn: "15m",
   });
   await insertNewSession({ token, associate: email });
   return token;

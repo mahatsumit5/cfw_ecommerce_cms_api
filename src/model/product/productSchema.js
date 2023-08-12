@@ -6,7 +6,7 @@ const productSchema = new mongoose.Schema(
       type: String,
       default: "inactive",
     },
-    name: {
+    title: {
       type: String,
       required: true,
     },
@@ -47,13 +47,15 @@ const productSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      trim: true,
-      maxlength: [2048], // max length of a string in mongodb is 1
+      required: true,
+    },
+    thumbnail: {
+      type: String,
+      required: true,
     },
     images: [
       {
         type: String,
-        required: true,
       },
     ],
   },

@@ -86,11 +86,11 @@ export const newProductValidation = (req, res, next) => {
     //define the schema
 
     const schema = Joi.object({
-      name: SHORTSTEREQ,
+      title: SHORTSTEREQ,
       parentCat: SHORTSTEREQ,
       sku: SHORTSTEREQ,
       status: SHORTSTEREQ,
-      qty: NUM,
+      qty: NUM.min(2),
       price: NUM,
       salesPrice: NUM,
       description: Joi.string().min(1).max(100).required(),

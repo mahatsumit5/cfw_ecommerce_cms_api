@@ -7,6 +7,9 @@ export const addCategory = (obj) => {
 export const getCategory = () => {
   return categorySchema.find();
 };
+export const getCategorybyId = (_id) => {
+  return categorySchema.findById(_id);
+};
 export const deleteCategory = (_id) => {
   return categorySchema.findByIdAndDelete(_id);
 };

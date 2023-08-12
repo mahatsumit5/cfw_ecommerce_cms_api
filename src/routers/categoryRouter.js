@@ -3,15 +3,17 @@ import {
   addCategory,
   deleteCategory,
   getCategory,
+  getCategorybyId,
   updateCatagory,
 } from "../model/categories/categoryModel.js";
 import slugify from "slugify";
 
 const router = express.Router();
 
-router.get("/", async (req, res, next) => {
+router.get("/:_id?", async (req, res, next) => {
   try {
-    const result = await getCategory();
+    const { _id } = req.params;
+    const result = !_id ? await getCategory() : await getCategorybyId(_id);
 
     res.json({
       status: "success",
