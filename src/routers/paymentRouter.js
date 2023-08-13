@@ -40,6 +40,7 @@ router.put("/", async (req, res, next) => {
   try {
     const { _id, ...rest } = req.body;
     const result = await updatePayment(_id, rest);
+    console.log(result);
     result?._id
       ? res.json({
           status: "success",

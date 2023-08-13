@@ -1,7 +1,9 @@
 import Joi from "joi";
 const SHORTSTE = Joi.string().min(3).max(100);
 const SHORTSTEREQ = Joi.string().min(3).max(100).required();
-const NUM = Joi.number().required();
+const LONGTSTR = Joi.string().min(3).max(10000);
+const NUM = Joi.number();
+const NUMREQ = Joi.number().required();
 export const newAdminValidation = (req, res, next) => {
   try {
     //define the schema
@@ -79,21 +81,20 @@ export const newAdminVerificationValidation = (req, res, next) => {
   }
 };
 
-// payment methods validation
 //new product avlidation
 export const newProductValidation = (req, res, next) => {
   try {
     //define the schema
-
+    req.body.salesPrice = req.body.salesPrice || 0;
     const schema = Joi.object({
       title: SHORTSTEREQ,
       parentCat: SHORTSTEREQ,
       sku: SHORTSTEREQ,
       status: SHORTSTEREQ,
-      qty: NUM.min(2),
-      price: NUM,
+      qty: NUMREQ,
+      price: NUMREQ,
       salesPrice: NUM,
-      description: Joi.string().min(1).max(100).required(),
+      description: LONGTSTR,
       salesStartDate: SHORTSTE.allow("", null),
       salesEndDate: SHORTSTE.allow("", null),
 
@@ -110,6 +111,54 @@ export const newProductValidation = (req, res, next) => {
     next(error);
   }
 };
+export const updateProductValidation = (req, res, next) => {
+  try {
+    const { _id, status, ...rest } = req.body;
+    // console.log(rest);
+    // console.log(!!rest);
+    // if (!!rest) {
+    //   console.log("restis empty");
+    //   next();
+    //   return;
+    // }
+    req.body.salesPrice = req.body.salesPrice || 0;
+    req.body.salesStartDate =
+      req.body.salesStartDate === "null" || !req.body.salesStartDate
+        ? null
+        : req.body.salesStartDate;
+
+    req.body.salesEndDate =
+      req.body.salesEndDate === "null" || !req.body.salesEndDate
+        ? null
+        : req.body.salesEndDate;
+    const schema = Joi.object({
+      _id: SHORTSTEREQ,
+      title: SHORTSTEREQ,
+      parentCat: SHORTSTEREQ,
+      status: SHORTSTEREQ,
+      qty: NUM.min(2),
+      price: NUM,
+      salesPrice: NUM,
+      description: Joi.string().min(1).max(100).required(),
+      salesStartDate: SHORTSTE.allow("", null),
+      salesEndDate: SHORTSTE.allow("", null),
+      images: LONGTSTR.allow(""),
+      thumbnail: LONGTSTR.allow(""),
+      //check data agains the rule
+    });
+    const { error } = schema.validate(req.body);
+    req.body.images = req.body.images.split(",");
+    error
+      ? res.json({
+          status: "error",
+          message: error.message,
+        })
+      : next();
+  } catch (error) {
+    next(error);
+  }
+};
+// payment methods validation
 export const newPaymentvalidation = (req, res, next) => {
   try {
     //define the schema

@@ -14,11 +14,17 @@ import {
 import {
   accountVerificationEmail,
   accountVerifiedEmail,
+  sendOTPNotification,
 } from "../utils/nodeMailer.js";
 import { v4 as uuidv4 } from "uuid";
 import { createAccessJWT, createRefreshJWT } from "../utils/jwt.js";
 import { auth, refreshAuth } from "../middleware/authMiddleware.js";
-import { findOneAndDelete } from "../model/session/sessionModel.js";
+import {
+  findOneAndDelete,
+  findOneByFilterAndDelete,
+  insertNewSession,
+} from "../model/session/sessionModel.js";
+import { generateOTP } from "../middleware/otpGenerator.js";
 const router = express.Router();
 
 router.get("/", auth, (req, res, next) => {
@@ -166,6 +172,66 @@ router.post("/logoutUser", async (req, res, next) => {
           status: "success",
         });
     }
+  } catch (error) {
+    next(error);
+  }
+});
+router.post("/request-otp", async (req, res, next) => {
+  try {
+    const user = await getAdminByEmail(req.body.email);
+    if (user) {
+      if (user?._id) {
+        const otp = generateOTP();
+        if (otp) {
+          const obj = {
+            token: otp,
+            associate: req.body.email,
+          };
+          const result = await insertNewSession(obj);
+
+          if (result._id) {
+            await sendOTPNotification(user, otp);
+          }
+        }
+      }
+    }
+    res.json({
+      status: "success",
+      message: "Check your email for verfication code",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/change-password", async (req, res, next) => {
+  try {
+    const { email, otp, password } = req.body;
+    const user = await getAdminByEmail(email);
+    const newPassword = hashPassword(password);
+    if (user?._id) {
+      const result = await findOneByFilterAndDelete({
+        associate: email,
+        token: otp,
+      });
+      if (result?._id) {
+        const isUpdated = await updateById(user._id, newPassword);
+        isUpdated
+          ? res.json({
+              status: "success",
+              message: "password has been updated",
+            })
+          : res.json({
+              status: "error",
+              message: "error while updating password",
+            });
+        return;
+      }
+    }
+    res.json({
+      status: "error",
+      message: "not successfull",
+    });
   } catch (error) {
     next(error);
   }

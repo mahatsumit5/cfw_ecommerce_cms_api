@@ -19,7 +19,7 @@ import path from "path";
 const __dirname = path.resolve();
 console.log(__dirname);
 // convert public to static
-app.use(express.static(__dirname + "/public"));
+app.use(express.static(path.join(__dirname + "/public")));
 // api
 import adminRouter from "./src/routers/adminRouter.js";
 import categoryRouter from "./src/routers/categoryRouter.js";
