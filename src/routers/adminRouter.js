@@ -4,6 +4,7 @@ import {
   getAdminByEmail,
   updateById,
   updateByJWT,
+  updateUser,
 } from "../model/admin/adminModel.js";
 import { checkPassword, hashPassword } from "../utils/bcrypt.js";
 import {
@@ -25,6 +26,7 @@ import {
   insertNewSession,
 } from "../model/session/sessionModel.js";
 import { generateOTP } from "../middleware/otpGenerator.js";
+import { upload } from "../middleware/multerMiddleware.js";
 const router = express.Router();
 
 router.get("/", auth, (req, res, next) => {
@@ -62,6 +64,26 @@ router.post("/", auth, newAdminValidation, async (req, res, next) => {
       error.message =
         "An account already exist with this email.Please try another.";
     }
+    next(error);
+  }
+});
+// update user
+router.put("/", upload.single("profile"), async (req, res, next) => {
+  try {
+    if (req.file.path) {
+      req.body.profile = req.file.path;
+    }
+    const result = await updateUser(req.body);
+    result?._id
+      ? res.json({
+          status: "success",
+          message: "User updated",
+        })
+      : res.json({
+          status: "error",
+          message: "error coming from model",
+        });
+  } catch (error) {
     next(error);
   }
 });
