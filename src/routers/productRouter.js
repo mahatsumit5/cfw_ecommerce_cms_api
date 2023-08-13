@@ -66,6 +66,7 @@ router.put(
         const newImages = req.files.map((item) => item.path);
         req.body.images = [...req.body.images, ...newImages];
       }
+      console.log(req.body);
       const result = await updateProductById(req.body);
 
       result?._id

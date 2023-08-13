@@ -214,8 +214,10 @@ router.post("/change-password", async (req, res, next) => {
         associate: email,
         token: otp,
       });
+      console.log(result);
       if (result?._id) {
-        const isUpdated = await updateById(user._id, newPassword);
+        const isUpdated = await updateById(user._id, { password: newPassword });
+        console.log(isUpdated);
         isUpdated
           ? res.json({
               status: "success",

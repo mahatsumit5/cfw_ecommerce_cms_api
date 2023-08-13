@@ -113,14 +113,12 @@ export const newProductValidation = (req, res, next) => {
 };
 export const updateProductValidation = (req, res, next) => {
   try {
-    const { _id, status, ...rest } = req.body;
-    // console.log(rest);
-    // console.log(!!rest);
-    // if (!!rest) {
-    //   console.log("restis empty");
-    //   next();
-    //   return;
-    // }
+    const { _id, status, title } = req.body;
+    if (!title) {
+      console.log("no data");
+      next();
+      return;
+    }
     req.body.salesPrice = req.body.salesPrice || 0;
     req.body.salesStartDate =
       req.body.salesStartDate === "null" || !req.body.salesStartDate
