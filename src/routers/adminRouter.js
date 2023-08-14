@@ -70,10 +70,16 @@ router.post("/", auth, newAdminValidation, async (req, res, next) => {
 // update user
 router.put("/", upload.single("profile"), async (req, res, next) => {
   try {
-    if (req.file.path) {
+    const { value } = req.body;
+    if (req.file?.path) {
       req.body.profile = req.file.path;
     }
-    const result = await updateUser(req.body);
+    const obj = {
+      _id: value,
+      profile:
+        "public/img/products/1692020245570-ben-sweet-2LowviVHZ-E-unsplash (1).jpg",
+    };
+    const result = value ? await updateUser(obj) : await updateUser(req.body);
     result?._id
       ? res.json({
           status: "success",
