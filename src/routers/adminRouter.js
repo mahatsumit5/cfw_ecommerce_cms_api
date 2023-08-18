@@ -16,6 +16,7 @@ import {
   accountVerificationEmail,
   accountVerifiedEmail,
   sendOTPNotification,
+  sendPassWordChangedAlert,
 } from "../utils/nodeMailer.js";
 import { v4 as uuidv4 } from "uuid";
 import { createAccessJWT, createRefreshJWT } from "../utils/jwt.js";
@@ -218,6 +219,7 @@ router.post("/request-otp", async (req, res, next) => {
           const result = await insertNewSession(obj);
 
           if (result._id) {
+            console.log("new result inserted");
             await sendOTPNotification(user, otp);
           }
         }
@@ -238,23 +240,27 @@ router.post("/change-password", async (req, res, next) => {
     const user = await getAdminByEmail(email);
     const newPassword = hashPassword(password);
     if (user?._id) {
+      console.log(user);
       const result = await findOneByFilterAndDelete({
         associate: email,
         token: otp,
       });
-      console.log(result);
       if (result?._id) {
+        console.log(result);
+
         const isUpdated = await updateById(user._id, { password: newPassword });
-        console.log(isUpdated);
-        isUpdated
-          ? res.json({
-              status: "success",
-              message: "password has been updated",
-            })
-          : res.json({
-              status: "error",
-              message: "error while updating password",
-            });
+        if (isUpdated) {
+          await sendPassWordChangedAlert(user);
+          return res.json({
+            status: "success",
+            message: "password has been updated",
+          });
+        }
+
+        res.json({
+          status: "error",
+          message: "error while updating password",
+        });
         return;
       }
     }

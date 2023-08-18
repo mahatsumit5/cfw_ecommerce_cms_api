@@ -123,3 +123,60 @@ This is your one-time-password
   console.log("Message sent: %s", info.messageId);
   // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
 };
+export const sendPassWordChangedAlert = async (user) => {
+  const { email, fName, lName } = user;
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+
+  // send mail with defined transport object
+  const info = await transporter.sendMail({
+    from: `CFW <${process.env.SMTP_USER}>`, // sender address
+    to: email, // list of receivers
+    subject: "Password Change Confirmation", // Subject line
+    text:
+      "Dear " +
+      { fName } +
+      { lName } +
+      fName +
+      `Your password has been Changed`,
+    html: `
+    <p>
+    Dear  ${fName}.${lName}
+</p>
+<p>
+This is to confirm that the password for
+ your account has been successfully changed.
+  Your account is now secured with the new password that you have set.
+  <br/>
+If you did not change your password, 
+please contact us immediately to report any 
+unauthorized access to your account.
+<br/>
+If you have any issues or concerns regarding your account, 
+please do not hesitate to contact our customer support team 
+for further assistance.
+<br/ 
+
+Thank you for using our service.
+
+ </p>
+<br />
+
+<br />
+
+<p>
+    Regareds, <br />
+    ACFW Store <br />
+    Customer Support Team
+</p>`,
+  });
+
+  console.log("Message sent: %s", info.messageId);
+  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+};
