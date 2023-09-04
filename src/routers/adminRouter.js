@@ -1,6 +1,7 @@
 import express from "express";
 import {
   addAdmin,
+  getAdmin,
   getAdminByEmail,
   updateById,
   updateByJWT,
@@ -30,12 +31,25 @@ import { generateOTP } from "../middleware/otpGenerator.js";
 import { upload } from "../middleware/multerMiddleware.js";
 const router = express.Router();
 
-router.get("/", auth, (req, res, next) => {
+router.get("/", auth, async (req, res, next) => {
   try {
     res.json({
       status: "success",
       message: "userInfo",
       user: req.userInfo, //comes from auth middleware
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+router.get("/get-admins", auth, async (req, res, next) => {
+  try {
+    const admins = await getAdmin();
+    console.log(admins);
+    res.json({
+      status: "success",
+      message: "userInfo",
+      admins, //comes from auth middleware
     });
   } catch (error) {
     next(error);
@@ -69,27 +83,77 @@ router.post("/", auth, newAdminValidation, async (req, res, next) => {
   }
 });
 // update user
-router.put("/", upload.single("profile"), async (req, res, next) => {
+router.put("/", auth, upload.single("profile"), async (req, res, next) => {
   try {
-    const { value } = req.body;
+    let passwordMatched;
+    let result;
+    const { ID, password, email, ...rest } = req.body;
     if (req.file?.path) {
-      req.body.profile = req.file.path;
+      rest.profile = req.file.path;
     }
-    const obj = {
-      _id: value,
-      profile:
-        "public/img/products/1692020245570-ben-sweet-2LowviVHZ-E-unsplash (1).jpg",
-    };
-    const result = value ? await updateUser(obj) : await updateUser(req.body);
+
+    const user = await getAdminByEmail(email);
+    ID
+      ? (result = await updateUser({
+          _id: ID,
+          profile:
+            "public/img/products/1692020245570-ben-sweet-2LowviVHZ-E-unsplash (1).jpg",
+        }))
+      : (passwordMatched = checkPassword(password, user.password));
+
+    if (passwordMatched) {
+      const result = await updateUser(rest);
+      console.log(result);
+      result?._id
+        ? res.json({
+            status: "success",
+            message: "User updated",
+          })
+        : res.json({
+            status: "error",
+            message: "error coming from model",
+          });
+      return;
+    }
     result?._id
       ? res.json({
           status: "success",
-          message: "User updated",
+          message: "Profile picture deleted",
         })
       : res.json({
           status: "error",
-          message: "error coming from model",
+          message: "Incorrect password",
         });
+  } catch (error) {
+    next(error);
+  }
+});
+router.put("/change-password", auth, async (req, res, next) => {
+  try {
+    console.log(req.body);
+    const { newPassword, oldPassword } = req.body;
+    const { email } = req.userInfo;
+    const user = await getAdminByEmail(email);
+    const isMatched = checkPassword(oldPassword, user.password);
+    if (isMatched) {
+      const result = await updateById(user._id, { password: newPassword });
+      await sendUserUpdateAlert(user);
+
+      result?._id
+        ? res.json({
+            status: "success",
+            message: "Password changed successfully",
+          })
+        : res.json({
+            status: "error",
+            message: "Error occured while changing the password",
+          });
+      return;
+    }
+    res.json({
+      status: "error",
+      message: "Old Password does not matched with current password",
+    });
   } catch (error) {
     next(error);
   }
@@ -130,9 +194,11 @@ router.post("/login", loginValidation, async (req, res, next) => {
 });
 router.put(
   "/verify",
+
   newAdminVerificationValidation,
   async (req, res, next) => {
     try {
+      console.log(req.body);
       const { email, code } = req.body;
       const user = await getAdminByEmail(email);
       if (user) {
