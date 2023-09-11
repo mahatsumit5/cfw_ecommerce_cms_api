@@ -55,7 +55,7 @@ router.get("/get-admins", auth, async (req, res, next) => {
     next(error);
   }
 });
-router.post("/", auth, newAdminValidation, async (req, res, next) => {
+router.post("/", newAdminValidation, async (req, res, next) => {
   try {
     req.body.password = hashPassword(req.body.password);
     req.body.verificationCode = uuidv4();
@@ -186,7 +186,7 @@ router.post("/login", loginValidation, async (req, res, next) => {
     }
     res.status(401).json({
       status: "error",
-      message: "Invalid Email or Password!",
+      message: "USER NOT FOUND",
     });
   } catch (error) {
     next(error);
