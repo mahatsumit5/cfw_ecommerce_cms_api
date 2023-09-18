@@ -27,11 +27,13 @@ import paymentRouter from "./src/routers/paymentRouter.js";
 import { auth } from "./src/middleware/authMiddleware.js";
 import productRouter from "./src/routers/productRouter.js";
 import mainCatRouter from "./src/routers/mainCatRouter.js";
+import orderRouter from "./src/routers/orderRouter.js";
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/category", auth, categoryRouter);
 app.use("/api/v1/payment", auth, paymentRouter);
 app.use("/api/v1/product", auth, productRouter);
-app.use("/api/v1/mainCat", mainCatRouter);
+app.use("/api/v1/mainCat", auth, mainCatRouter);
+app.use("/api/v1/order", auth, orderRouter);
 
 app.get("/", (req, res) => {
   res.json({
