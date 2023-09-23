@@ -12,6 +12,7 @@ import {
   updateProductValidation,
 } from "../middleware/joiValidation.js";
 import { upload } from "../middleware/multerMiddleware.js";
+import { imageResize } from "../middleware/sharpMiddleware.js";
 const router = express.Router();
 router.post(
   "/",
@@ -21,6 +22,7 @@ router.post(
     try {
       if (req.files.length) {
         req.body.images = req.files.map((item) => item.path);
+        console.log(req.body.images, "list of images");
         req.body.thumbnail = req.body.images[0];
       }
       req.body.slug = slugify(req.body.title, { lower: true, trim: true });
@@ -45,6 +47,7 @@ router.post(
 );
 router.get("/:_id?", async (req, res, next) => {
   try {
+    imageResize();
     const { _id } = req.params;
     const result = _id ? await getProductById(_id) : await getProducts();
     res.json({
@@ -66,7 +69,6 @@ router.put(
         const newImages = req.files.map((item) => item.path);
         req.body.images = [...req.body.images, ...newImages];
       }
-      console.log(req.body);
       const result = await updateProductById(req.body);
 
       result?._id
