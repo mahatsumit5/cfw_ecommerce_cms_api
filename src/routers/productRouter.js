@@ -13,6 +13,7 @@ import {
 } from "../middleware/joiValidation.js";
 import { upload } from "../middleware/multerMiddleware.js";
 import { imageResize } from "../middleware/sharpMiddleware.js";
+import uploadFile from "../middleware/s3Bucket.js";
 const router = express.Router();
 router.post(
   "/",
@@ -20,12 +21,19 @@ router.post(
   newProductValidation,
   async (req, res, next) => {
     try {
+      const data = await uploadFile(req.files[0]);
+      console.log(data);
       if (req.files.length) {
-        req.body.images = req.files.map((item) => item.path);
-        console.log(req.body.images, "list of images");
-        req.body.thumbnail = req.body.images[0];
+        req.body.images = req.files.map((item) => {
+          // uploadFile(item).then((response) => {
+          //   console.log(response);
+          // });
+          return item.path;
+        });
+        req.body.thumbnail = data.Location;
       }
       req.body.slug = slugify(req.body.title, { lower: true, trim: true });
+      // return;
       const result = await addProduct(req.body);
       result?._id
         ? res.json({
@@ -47,7 +55,6 @@ router.post(
 );
 router.get("/:_id?", async (req, res, next) => {
   try {
-    imageResize();
     const { _id } = req.params;
     const result = _id ? await getProductById(_id) : await getProducts();
     res.json({

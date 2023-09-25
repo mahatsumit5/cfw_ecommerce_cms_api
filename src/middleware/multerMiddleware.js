@@ -5,7 +5,6 @@ const storage = multer.diskStorage({
   //where do you want to store the file
 
   destination: (req, file, cb) => {
-    console.log(file);
     cb(null, imageFolderPath);
   },
   //what name do you wnat to give
