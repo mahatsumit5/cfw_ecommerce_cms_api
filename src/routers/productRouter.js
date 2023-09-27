@@ -1,5 +1,6 @@
 import express from "express";
 import slugify from "slugify";
+import fs from "fs";
 import {
   addProduct,
   deleteProductById,
@@ -12,8 +13,8 @@ import {
   updateProductValidation,
 } from "../middleware/joiValidation.js";
 import { upload } from "../middleware/multerMiddleware.js";
-import { imageResize } from "../middleware/sharpMiddleware.js";
-import uploadFile from "../middleware/s3Bucket.js";
+import uploadFile, { deleteFile } from "../middleware/s3Bucket.js";
+import { error } from "console";
 const router = express.Router();
 router.post(
   "/",
@@ -21,24 +22,29 @@ router.post(
   newProductValidation,
   async (req, res, next) => {
     try {
-      const data = await uploadFile(req.files[0]);
-      console.log(data);
+      const { Location } = await uploadFile(req.files[0]);
+      // if (req.files.length) {
+      //   req.body.images = req.files.flatMap(async (element) => {
+      //     return await uploadFile(element);
+      //   });
+      // }
       if (req.files.length) {
-        req.body.images = req.files.map((item) => {
-          // uploadFile(item).then((response) => {
-          //   console.log(response);
-          // });
-          return item.path;
-        });
-        req.body.thumbnail = data.Location;
+        console.log(req.files);
+        req.body.images = req.files.map((item) => item.path);
       }
+
+      // Promise.all(images).then((res) => {
+      //   console.log(res, "location............");
+      // });
+      req.body.thumbnail = Location;
       req.body.slug = slugify(req.body.title, { lower: true, trim: true });
-      // return;
+
       const result = await addProduct(req.body);
       result?._id
         ? res.json({
             status: "success",
             message: "New product Sucessfully added",
+            imagesToDelete: req.files.map((item) => item.filename),
           })
         : res.json({
             status: "error",
@@ -94,9 +100,12 @@ router.put(
 );
 router.delete("/:_id", async (req, res, next) => {
   try {
-    console.log(req.params);
     const { _id } = req.params;
-    console.log(_id);
+    const product = await getProductById(_id);
+    const { thumbnail } = product;
+
+    await deleteFile(thumbnail.slice(57));
+
     const result = await deleteProductById(_id);
     result?._id
       ? res.json({
@@ -107,6 +116,32 @@ router.delete("/:_id", async (req, res, next) => {
           status: "error",
           message: "Unable to delete",
         });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/deleteFileFromServer", async (req, res, next) => {
+  const { fileName } = req.body;
+
+  if (!fileName) {
+    return res.json({
+      status: "error",
+      message: "folder name isr required",
+    });
+  }
+  const rootFolder = "public/img/products";
+  const path = `${rootFolder}/${fileName}`;
+  try {
+    fs.unlink(path, (err) => {
+      if (err) {
+        return res.json(err);
+      }
+      return res.json({
+        status: "success",
+        message: "File deleted from the server",
+      });
+    });
   } catch (error) {
     next(error);
   }
