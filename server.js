@@ -20,7 +20,6 @@ const __dirname = path.resolve();
 console.log(__dirname);
 // convert public to static
 app.use(express.static(path.join(__dirname + "/public")));
-app.use(express.static(__dirname + "/build"));
 // api
 import adminRouter from "./src/routers/adminRouter.js";
 import categoryRouter from "./src/routers/categoryRouter.js";
@@ -36,8 +35,11 @@ app.use("/api/v1/product", auth, productRouter);
 app.use("/api/v1/mainCat", auth, mainCatRouter);
 app.use("/api/v1/order", auth, orderRouter);
 
-app.use("/", (req, res) => {
-  res.sendFile(__dirname + "/build/index.html");
+app.get("/", (req, res) => {
+  res.json({
+    status: "success",
+    message: "Server is up and running",
+  });
 });
 app.use((error, req, res, next) => {
   console.log(error);

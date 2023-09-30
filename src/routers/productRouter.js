@@ -13,8 +13,7 @@ import {
   updateProductValidation,
 } from "../middleware/joiValidation.js";
 import { upload } from "../middleware/multerMiddleware.js";
-import uploadFile, { deleteFile } from "../middleware/s3Bucket.js";
-import { error } from "console";
+import uploadFile, { deleteFile } from "../utils/s3Bucket.js";
 const router = express.Router();
 router.post(
   "/",
@@ -22,21 +21,24 @@ router.post(
   newProductValidation,
   async (req, res, next) => {
     try {
-      const { Location } = await uploadFile(req.files[0]);
-      // if (req.files.length) {
-      //   req.body.images = req.files.flatMap(async (element) => {
-      //     return await uploadFile(element);
-      //   });
-      // }
       if (req.files.length) {
-        console.log(req.files);
-        req.body.images = req.files.map((item) => item.path);
+        const arg = req.files.flatMap(async (element) => {
+          const data = await uploadFile(element);
+          return data.Location;
+        });
+        req.body.images = await Promise.all(arg);
       }
+
+      // const arg = Promise.all(req.body.images);
+      // if (req.files.length) {
+      //   console.log(req.files);
+      //   req.body.images = req.files.map((item) => item.path);
+      // }
 
       // Promise.all(images).then((res) => {
       //   console.log(res, "location............");
       // });
-      req.body.thumbnail = Location;
+      req.body.thumbnail = req.body.images[0];
       req.body.slug = slugify(req.body.title, { lower: true, trim: true });
 
       const result = await addProduct(req.body);
