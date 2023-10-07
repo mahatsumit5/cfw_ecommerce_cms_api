@@ -27,7 +27,6 @@ router.get("/:_id?", async (req, res, next) => {
 });
 router.post("/", upload.single("image"), async (req, res, next) => {
   try {
-    console.log(req.file);
     const { title } = req.body;
     !title &&
       res.json({
