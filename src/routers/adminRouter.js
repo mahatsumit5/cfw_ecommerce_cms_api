@@ -114,7 +114,7 @@ router.put("/", auth, upload.single("profile"), async (req, res, next) => {
         ? res.json({
             status: "success",
             message: "User updated",
-            imageToDelete: req.file.path,
+            imageToDelete: req.file.filename,
           })
         : res.json({
             status: "error",
