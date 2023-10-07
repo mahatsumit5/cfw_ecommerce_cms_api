@@ -71,13 +71,14 @@ router.put(
   async (req, res, next) => {
     try {
       const { _id, images } = req.body;
-      const product = await getProductById(_id);
-      for (let i = 0; i < product.images.length; i++) {
-        if (images.indexOf(product.images[i]) === -1) {
-          deleteFile(product.images[i].slice(57));
-        }
-      }
+
       if (req.files?.length) {
+        const product = await getProductById(_id);
+        for (let i = 0; i < product.images.length; i++) {
+          if (images.indexOf(product.images[i]) === -1) {
+            deleteFile(product.images[i].slice(57));
+          }
+        }
         const newImages = req.files.map(async (item) => {
           const { Location } = await uploadFile(item);
           return Location;
