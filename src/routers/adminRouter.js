@@ -29,6 +29,7 @@ import {
 } from "../model/session/sessionModel.js";
 import { generateOTP } from "../middleware/otpGenerator.js";
 import { upload } from "../middleware/multerMiddleware.js";
+import uploadFile, { deleteFile } from "../utils/s3Bucket.js";
 const router = express.Router();
 
 router.get("/", auth, async (req, res, next) => {
@@ -87,27 +88,33 @@ router.put("/", auth, upload.single("profile"), async (req, res, next) => {
   try {
     let passwordMatched;
     let result;
-    const { ID, password, email, ...rest } = req.body;
+    const { ID, profile, password, email, ...rest } = req.body;
     if (req.file?.path) {
-      rest.profile = req.file.path;
+      const { Location } = await uploadFile(req.file);
+      rest.profile = Location;
     }
 
     const user = await getAdminByEmail(email);
-    ID
-      ? (result = await updateUser({
-          _id: ID,
-          profile:
-            "public/img/products/1692020245570-ben-sweet-2LowviVHZ-E-unsplash (1).jpg",
-        }))
-      : (passwordMatched = checkPassword(password, user.password));
+    if (ID) {
+      const s3ImageKey = profile.slice(57);
+      result = await updateUser({
+        _id: ID,
+        profile:
+          "https://cfw-image-bucket.s3.ap-southeast-2.amazonaws.com/default.jpg",
+      });
+      s3ImageKey !== "default.jpg" && deleteFile(s3ImageKey);
+    } else {
+      passwordMatched = checkPassword(password, user.password);
+    }
 
     if (passwordMatched) {
       const result = await updateUser(rest);
-      console.log(result);
+
       result?._id
         ? res.json({
             status: "success",
             message: "User updated",
+            imageToDelete: req.file.path,
           })
         : res.json({
             status: "error",

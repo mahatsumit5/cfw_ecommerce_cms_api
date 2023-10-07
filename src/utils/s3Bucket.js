@@ -28,6 +28,7 @@ const uploadFile = (file) => {
 };
 
 export const deleteFile = (file) => {
+  console.log(file, "coming from delete function");
   const bucketName = process.env.AWS_BUCKET_NAME;
   const region = process.env.AWS_REGION;
   const accessKey = process.env.AWS_ACCESS_KEY;
@@ -39,7 +40,6 @@ export const deleteFile = (file) => {
     secretKey,
   });
   try {
-    console.log(file);
     const deleteParams = {
       Bucket: bucketName,
       Key: file,

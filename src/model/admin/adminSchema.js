@@ -51,7 +51,8 @@ const adminSchema = new mongoose.Schema(
     },
     profile: {
       type: String,
-      default: "",
+      default:
+        "https://cfw-image-bucket.s3.ap-southeast-2.amazonaws.com/default.jpg",
     },
   },
   { timestamps: true }

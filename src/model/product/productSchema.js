@@ -58,7 +58,8 @@ const productSchema = new mongoose.Schema(
     ],
     reviews: [
       {
-        type: String,
+        type: Object,
+        default: {},
       },
     ],
   },

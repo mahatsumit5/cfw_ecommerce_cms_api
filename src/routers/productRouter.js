@@ -23,21 +23,11 @@ router.post(
     try {
       if (req.files.length) {
         const arg = req.files.flatMap(async (element) => {
-          const data = await uploadFile(element);
-          return data.Location;
+          const { Location } = await uploadFile(element);
+          return Location;
         });
         req.body.images = await Promise.all(arg);
       }
-
-      // const arg = Promise.all(req.body.images);
-      // if (req.files.length) {
-      //   console.log(req.files);
-      //   req.body.images = req.files.map((item) => item.path);
-      // }
-
-      // Promise.all(images).then((res) => {
-      //   console.log(res, "location............");
-      // });
       req.body.thumbnail = req.body.images[0];
       req.body.slug = slugify(req.body.title, { lower: true, trim: true });
 
@@ -80,16 +70,31 @@ router.put(
   updateProductValidation,
   async (req, res, next) => {
     try {
-      if (req.files?.length) {
-        const newImages = req.files.map((item) => item.path);
-        req.body.images = [...req.body.images, ...newImages];
+      const { _id, images } = req.body;
+      const product = await getProductById(_id);
+      for (let i = 0; i < product.images.length; i++) {
+        if (images.indexOf(product.images[i]) === -1) {
+          deleteFile(product.images[i].slice(57));
+        }
       }
+      if (req.files?.length) {
+        const newImages = req.files.map(async (item) => {
+          const { Location } = await uploadFile(item);
+          return Location;
+        });
+        req.body.images = [
+          ...req.body.images,
+          ...(await Promise.all(newImages)),
+        ];
+      }
+
       const result = await updateProductById(req.body);
 
       result?._id
         ? res.json({
             status: "success",
             message: "updated Successfull",
+            imagesToDelete: req.files.map((item) => item),
           })
         : res.json({
             status: "error",
@@ -103,10 +108,9 @@ router.put(
 router.delete("/:_id", async (req, res, next) => {
   try {
     const { _id } = req.params;
-    const product = await getProductById(_id);
-    const { thumbnail } = product;
+    const { images } = await getProductById(_id);
 
-    await deleteFile(thumbnail.slice(57));
+    images.map((img) => deleteFile(img.slice(57)));
 
     const result = await deleteProductById(_id);
     result?._id
@@ -125,11 +129,11 @@ router.delete("/:_id", async (req, res, next) => {
 
 router.post("/deleteFileFromServer", async (req, res, next) => {
   const { fileName } = req.body;
-
+  console.log(fileName);
   if (!fileName) {
     return res.json({
       status: "error",
-      message: "folder name isr required",
+      message: "folder name is required",
     });
   }
   const rootFolder = "public/img/products";

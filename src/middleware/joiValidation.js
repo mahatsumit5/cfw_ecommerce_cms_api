@@ -142,10 +142,12 @@ export const updateProductValidation = (req, res, next) => {
       salesEndDate: SHORTSTE.allow("", null),
       images: LONGTSTR.allow(""),
       thumbnail: LONGTSTR.allow(""),
+      reviews: LONGTSTR.allow(""),
       //check data agains the rule
     });
     const { error } = schema.validate(req.body);
     req.body.images = req.body.images.split(",");
+
     error
       ? res.json({
           status: "error",
