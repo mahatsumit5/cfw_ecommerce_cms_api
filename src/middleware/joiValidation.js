@@ -88,6 +88,7 @@ export const newProductValidation = (req, res, next) => {
     req.body.salesPrice = req.body.salesPrice || 0;
     const schema = Joi.object({
       title: SHORTSTEREQ,
+      color: Joi.string(),
       parentCat: SHORTSTEREQ,
       sku: SHORTSTEREQ,
       status: SHORTSTEREQ,

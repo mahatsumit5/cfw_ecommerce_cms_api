@@ -32,6 +32,8 @@ const productSchema = new mongoose.Schema(
     salesPrice: {
       type: Number,
     },
+    color: [{ type: String, required: true }],
+
     parentCat: {
       type: mongoose.Types.ObjectId,
       ref: "Product",

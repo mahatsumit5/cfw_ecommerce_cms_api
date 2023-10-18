@@ -95,7 +95,7 @@ router.put(
         ? res.json({
             status: "success",
             message: "updated Successfull",
-            imagesToDelete: req.files.map((item) => item),
+            imagesToDelete: req?.files?.map((item) => item),
           })
         : res.json({
             status: "error",

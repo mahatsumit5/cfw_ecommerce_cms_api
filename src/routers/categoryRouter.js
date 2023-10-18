@@ -74,7 +74,7 @@ router.put("/", upload.single("image"), async (req, res, next) => {
       ? res.json({
           status: "success",
           message: `${title} is ${status}`,
-          imageToDelete: req.file.filename,
+          imageToDelete: req?.file?.filename,
         })
       : res.json({
           status: "error",
