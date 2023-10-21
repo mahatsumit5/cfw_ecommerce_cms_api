@@ -21,6 +21,7 @@ router.post(
   newProductValidation,
   async (req, res, next) => {
     try {
+      console.log(req.body);
       if (req.files.length) {
         const arg = req.files.flatMap(async (element) => {
           const { Location } = await uploadFile(element);
