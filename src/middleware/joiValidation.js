@@ -1,5 +1,5 @@
 import Joi from "joi";
-const SHORTSTE = Joi.string().min(3).max(100);
+const SHORTSTE = Joi.string().min(2).max(100);
 const SHORTSTEREQ = Joi.string().min(3).max(100).required();
 const LONGTSTR = Joi.string().min(3).max(10000);
 const NUM = Joi.number();
@@ -135,8 +135,8 @@ export const updateProductValidation = (req, res, next) => {
       _id: SHORTSTEREQ,
       title: SHORTSTEREQ,
       parentCat: SHORTSTEREQ,
-      color: Joi.array(),
-      size: Joi.array(),
+      color: LONGTSTR.allow(""),
+      size: SHORTSTE.allow(""),
       status: SHORTSTEREQ,
       qty: NUM.min(2),
       price: NUM,
@@ -151,6 +151,7 @@ export const updateProductValidation = (req, res, next) => {
     });
     const { error } = schema.validate(req.body);
     req.body.images = req.body.images.split(",");
+    req.body.color = req.body.color.split(",");
 
     error
       ? res.json({
