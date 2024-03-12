@@ -27,7 +27,7 @@ router.get("/:_id?", async (req, res, next) => {
 });
 router.post("/", upload.single("image"), async (req, res, next) => {
   try {
-    const { title } = req.body;
+    const { title, parentCategory } = req.body;
     !title &&
       res.json({
         status: "error",
@@ -41,13 +41,15 @@ router.post("/", upload.single("image"), async (req, res, next) => {
       image: req.body.image,
       title,
       slug: slugify(title, { lower: true, trim: true }),
+      parentCategory,
     };
     const result = await addCategory(obj);
     result?._id
       ? res.json({
           status: "success",
           message: "New Category Sucessfully added",
-          imageToDelete: req.file.filename,
+          result,
+          imagesToDelete: req.file.filename,
         })
       : res.json({
           status: "error",
@@ -63,24 +65,29 @@ router.post("/", upload.single("image"), async (req, res, next) => {
 });
 router.put("/", upload.single("image"), async (req, res, next) => {
   try {
-    const { value, ...rest } = req.body;
+    const { _id, ...rest } = req.body;
+
     if (req.file?.path) {
       const { Location } = await uploadFile(req.file);
-      rest.image = Location;
+      req.body.image = Location;
     }
-    const result = await updateCatagory(value, rest);
-    const { title, status } = result;
+    const result = await updateCatagory(_id, {
+      ...rest,
+      image: req.body.image,
+    });
+
     result?._id
       ? res.json({
           status: "success",
-          message: `${title} is ${status}`,
-          imageToDelete: req?.file?.filename,
+          message: `Update successfull`,
+          imagesToDelete: req?.file?.filename,
         })
       : res.json({
           status: "error",
-          message: "Unable to add new category",
+          message: "Unable to update new category",
         });
   } catch (error) {
+    console.log(error);
     next(error);
   }
 });

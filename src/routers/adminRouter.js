@@ -50,7 +50,7 @@ router.get("/get-admins", auth, async (req, res, next) => {
     res.json({
       status: "success",
       message: "userInfo",
-      admins, //comes from auth middleware
+      admins,
     });
   } catch (error) {
     next(error);
@@ -246,6 +246,7 @@ router.put(
 );
 
 router.get("/get-accessjwt", refreshAuth);
+
 router.post("/logout", async (req, res, next) => {
   try {
     const { accessJWT, refreshJWT, _id } = req.body;

@@ -5,7 +5,6 @@ export const insertNewSession = (obj) => {
 };
 
 export const findOneByFilterAndDelete = (filter) => {
-  console.log(filter);
   return sessionSchema.findOneAndDelete(filter);
 };
 export const findOneAndDelete = (token) => {

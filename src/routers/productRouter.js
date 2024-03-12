@@ -21,7 +21,6 @@ router.post(
   newProductValidation,
   async (req, res, next) => {
     try {
-      console.log(req.body);
       if (req.files.length) {
         const arg = req.files.flatMap(async (element) => {
           const { Location } = await uploadFile(element);
@@ -75,6 +74,7 @@ router.put(
 
       if (req.files?.length) {
         const product = await getProductById(_id);
+        console.log(product);
         for (let i = 0; i < product.images.length; i++) {
           if (images.indexOf(product.images[i]) === -1) {
             deleteFile(product.images[i].slice(57));
@@ -103,6 +103,7 @@ router.put(
             message: "Unable to update.",
           });
     } catch (error) {
+      console.log(error);
       next(error);
     }
   }

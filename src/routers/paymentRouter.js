@@ -26,7 +26,7 @@ router.get("/", async (req, res) => {
       ? res.json({
           status: "success",
           message: "Here are your information",
-          data,
+          result: data,
         })
       : res.json({
           status: "error",

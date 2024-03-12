@@ -14,6 +14,7 @@ const uploadFile = (file) => {
     secretKey,
   });
   try {
+    console.log(file.path);
     const fileStream = fs.createReadStream(file.path);
 
     const uploadParams = {

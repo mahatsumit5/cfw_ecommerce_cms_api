@@ -1,10 +1,12 @@
-import mongoose from "mongoose";
+import { Schema, model } from "mongoose";
 
-const mainCatSchema = new mongoose.Schema(
+const mainCatSchema = new Schema(
   {
     status: {
       type: String,
-      default: "inactive",
+
+      required: true,
+      default: "active",
     },
     title: {
       type: String,
@@ -21,4 +23,5 @@ const mainCatSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-export default mongoose.model("mainCat", mainCatSchema);
+const ParentCategory = model("ParentCategory", mainCatSchema);
+export default ParentCategory;

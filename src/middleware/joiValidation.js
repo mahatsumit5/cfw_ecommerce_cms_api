@@ -90,15 +90,15 @@ export const newProductValidation = (req, res, next) => {
       title: SHORTSTEREQ,
       color: Joi.array(),
       size: Joi.array(),
-      parentCat: SHORTSTEREQ,
+      category: SHORTSTEREQ,
       sku: SHORTSTEREQ,
       status: SHORTSTEREQ,
       qty: NUMREQ,
       price: NUMREQ,
       salesPrice: NUM,
       description: LONGTSTR,
-      salesStartDate: SHORTSTE.allow("", null),
-      salesEndDate: SHORTSTE.allow("", null),
+      salesStartDate: Joi.date().allow("", null).iso(),
+      salesEndDate: Joi.date().iso().allow(""),
 
       //check data agains the rule
     });
@@ -134,9 +134,9 @@ export const updateProductValidation = (req, res, next) => {
     const schema = Joi.object({
       _id: SHORTSTEREQ,
       title: SHORTSTEREQ,
-      parentCat: SHORTSTEREQ,
-      color: LONGTSTR.allow(""),
-      size: SHORTSTE.allow(""),
+      category: SHORTSTEREQ,
+      color: Joi.array(),
+      size: Joi.array(),
       status: SHORTSTEREQ,
       qty: NUM.min(2),
       price: NUM,
@@ -150,8 +150,6 @@ export const updateProductValidation = (req, res, next) => {
       //check data agains the rule
     });
     const { error } = schema.validate(req.body);
-    req.body.images = req.body.images.split(",");
-    req.body.color = req.body.color.split(",");
 
     error
       ? res.json({
@@ -169,6 +167,7 @@ export const newPaymentvalidation = (req, res, next) => {
     //define the schema
 
     const schema = Joi.object({
+      status: SHORTSTEREQ,
       title: Joi.string().min(2).max(50).required(),
       description: Joi.string().min(1).max(100).required(),
 

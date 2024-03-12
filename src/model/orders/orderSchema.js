@@ -1,38 +1,44 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 const orderSchema = new mongoose.Schema(
   {
-    status: {
+    uniqueId: {
       type: String,
-      default: "pending",
+      required: true,
+      unique: true,
+    },
+    stripeId: {
+      type: String,
+      required: true,
+      unique: true,
+      index: 1,
     },
     orderItems: [
       {
         _id: {
-          type: mongoose.Types.ObjectId,
+          type: Schema.Types.ObjectId,
+          required: true,
+          ref: "products",
         },
         title: {
           type: String,
           required: true,
         },
-        slug: {
+
+        orderQty: {
+          type: String,
+          required: true,
+        },
+        size: {
+          type: String,
+          required: false,
+        },
+
+        color: {
           type: String,
           required: true,
         },
         price: {
           type: Number,
-          required: true,
-        },
-        orderQty: {
-          type: Number,
-          required: true,
-        },
-
-        salesPrice: {
-          type: Number,
-        },
-
-        description: {
-          type: String,
           required: true,
         },
         thumbnail: {
@@ -41,49 +47,28 @@ const orderSchema = new mongoose.Schema(
         },
       },
     ],
-    payment: {
-      totalAmount: {
-        type: Number,
-        required: true,
-      },
-      method: {
-        type: String,
-        required: true,
-      },
-      isPaid: {
-        type: Boolean,
-        required: true,
-      },
+    status: {
+      type: String,
+      default: "pending",
     },
-    user: {
-      _id: {
-        type: mongoose.Types.ObjectId,
-        required: true,
-      },
-      fName: {
-        type: String,
-        required: true,
-      },
-
-      lName: {
-        type: String,
-        required: true,
-      },
-
-      phone: {
-        type: String,
-        required: false,
-      },
-
-      email: {
-        type: String,
-        required: true,
-      },
-      address: {
-        type: String,
-        required: true,
-        default: "",
-      },
+    total_details: {
+      amount_discount: Number,
+      amount_shipping: Number,
+      amount_tax: Number,
+      amount_subtotal: Number,
+      amount_total: Number,
+    },
+    buyer: {
+      type: Schema.Types.ObjectId,
+      ref: "Customer",
+    },
+    address: {
+      city: { type: String },
+      country: { type: String },
+      line1: { type: String },
+      line2: { type: String, default: null },
+      postal_code: { type: String },
+      state: { type: String },
     },
   },
   { timestamps: true }

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const categorySchema = new mongoose.Schema(
   {
@@ -22,7 +22,13 @@ const categorySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    parentCategory: {
+      type: Schema.Types.ObjectId,
+      ref: "ParentCategory",
+      required: true,
+    },
   },
   { timestamps: true }
 );
-export default mongoose.model("categories", categorySchema);
+const Category = mongoose.model("Category", categorySchema);
+export default Category;

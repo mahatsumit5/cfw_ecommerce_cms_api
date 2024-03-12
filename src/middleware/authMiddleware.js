@@ -61,6 +61,7 @@ export const refreshAuth = async (req, res, next) => {
         const accessJWT = await createAccessJWT(decoded.email);
         return res.json({
           status: "success",
+          message: "Token Refreshed Successfully!",
           accessJWT,
         });
       }

@@ -7,7 +7,7 @@ import {
   getMainCat,
   getMainCatById,
   updateMainCat,
-} from "../model/mainCatalogue/mainCatModel.js";
+} from "../model/parentCat/parentCatModel.js";
 
 const router = express.Router();
 
@@ -18,7 +18,7 @@ router.get("/:_id?", async (req, res, next) => {
 
     res.json({
       status: "success",
-      message: "Results received",
+      message: "Results receivedss",
       result,
     });
   } catch (error) {

@@ -26,13 +26,13 @@ import categoryRouter from "./src/routers/categoryRouter.js";
 import paymentRouter from "./src/routers/paymentRouter.js";
 import { auth } from "./src/middleware/authMiddleware.js";
 import productRouter from "./src/routers/productRouter.js";
-import mainCatRouter from "./src/routers/mainCatRouter.js";
 import orderRouter from "./src/routers/orderRouter.js";
+import parentCatRouter from "./src/routers/parentCatRouter.js";
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/category", auth, categoryRouter);
 app.use("/api/v1/payment", auth, paymentRouter);
 app.use("/api/v1/product", auth, productRouter);
-app.use("/api/v1/mainCat", auth, mainCatRouter);
+app.use("/api/v1/parentCat", auth, parentCatRouter);
 app.use("/api/v1/order", auth, orderRouter);
 
 app.get("/", (req, res) => {
@@ -42,7 +42,6 @@ app.get("/", (req, res) => {
   });
 });
 app.use((error, req, res, next) => {
-  console.log(error);
   const code = error.statusCode || 500;
   res.status(code).json({
     status: "error",
