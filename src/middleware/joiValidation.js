@@ -115,12 +115,17 @@ export const newProductValidation = (req, res, next) => {
 };
 export const updateProductValidation = (req, res, next) => {
   try {
+    console.log(req.body);
     const { _id, status, title } = req.body;
     if (!title) {
       console.log("no data");
       next();
       return;
     }
+    if (typeof req.body.images === "string") {
+      req.body.images = [req.body.images];
+    }
+
     req.body.salesPrice = req.body.salesPrice || 0;
     req.body.salesStartDate =
       req.body.salesStartDate === "null" || !req.body.salesStartDate
@@ -144,7 +149,7 @@ export const updateProductValidation = (req, res, next) => {
       description: Joi.string().min(1).max(100000).required(),
       salesStartDate: SHORTSTE.allow("", null),
       salesEndDate: SHORTSTE.allow("", null),
-      images: LONGTSTR.allow(""),
+      images: Joi.array(),
       thumbnail: LONGTSTR.allow(""),
       reviews: LONGTSTR.allow(""),
       //check data agains the rule

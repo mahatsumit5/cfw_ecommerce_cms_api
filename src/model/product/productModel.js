@@ -5,9 +5,12 @@ export const addProduct = (obj) => {
   return Product(obj).save();
 };
 
-export const getProducts = () => {
-  return Product.find().populate("category");
+export const getProducts = async () => {
+  const products = await Product.find().populate("category");
+  console.log(products);
+  return products;
 };
+
 export const getProductById = (_id) => {
   return Product.findById(_id);
 };
