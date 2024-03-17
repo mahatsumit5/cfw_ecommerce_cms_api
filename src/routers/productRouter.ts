@@ -23,11 +23,11 @@ router.post(
   newProductValidation,
   async (req, res, next) => {
     try {
-      const img = req.file
-        ? req.files?.map((item: Express.Multer.File) => item.filename)
-        : [];
+      const files: Express.Multer.File[] = req.files as Express.Multer.File[];
+      const img = files?.map((item: Express.Multer.File) => item.filename);
+
       if (req.files?.length) {
-        const arg = req.files.map(async (element: Express.Multer.File) => {
+        const arg = files.map(async (element: Express.Multer.File) => {
           const data = await uploadFile(element);
           return data?.Location;
         });
@@ -76,6 +76,8 @@ router.put(
   updateProductValidation,
   async (req, res, next) => {
     try {
+      const files: Express.Multer.File[] = req.files as Express.Multer.File[];
+
       const { _id, images } = req.body;
 
       if (req.files?.length) {
@@ -87,7 +89,7 @@ router.put(
             }
           }
         }
-        const newImages = req.files.map(async (item: Express.Multer.File) => {
+        const newImages = files.map(async (item: Express.Multer.File) => {
           const data = await uploadFile(item);
           return data?.Location;
         });
@@ -103,9 +105,7 @@ router.put(
         ? res.json({
             status: "success",
             message: "updated Successfull",
-            imagesToDelete: req?.files?.map(
-              (item: Express.Multer.File) => item
-            ),
+            imagesToDelete: files.map((item: Express.Multer.File) => item),
           })
         : res.json({
             status: "error",
