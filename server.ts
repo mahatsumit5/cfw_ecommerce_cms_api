@@ -6,7 +6,7 @@ import express, {
 } from "express";
 import { mongoConnect } from "./src/config/mongoConfig";
 const app: Application = express();
-const PORT: Number = Number(process.env.PORT) || 8080;
+const PORT: Number = Number(process.env.PORT) || 8000;
 
 import { config } from "dotenv";
 config(); //using dotenv to process dotenv key
@@ -21,39 +21,42 @@ app.use(express.json()); //send data in json format to frontEnd
 mongoConnect(); //connecting to mongoDB
 
 import path from "path";
-import { createAccessJWT, verifyAccessJWT } from "./src/utils/jwt";
 
 const directory: string = path.resolve();
 // convert public to static
 app.use(express.static(path.join(directory + "/public")));
 // api
-// import adminRouter from "./src/routers/adminRouter.js";
-// import categoryRouter from "./src/routers/categoryRouter.js";
-// import paymentRouter from "./src/routers/paymentRouter.js";
-// import { auth } from "./src/middleware/authMiddleware.js";
-// import productRouter from "./src/routers/productRouter.js";
-// import orderRouter from "./src/routers/orderRouter.js";
-// import parentCatRouter from "./src/routers/parentCatRouter.js";
-// import queryrouter from "./src/routers/query.router.js";
-// app.use("/api/v1/admin", adminRouter);
-// app.use("/api/v1/category", auth, categoryRouter);
-// app.use("/api/v1/payment", auth, paymentRouter);
-// app.use("/api/v1/product", auth, productRouter);
-// app.use("/api/v1/parentCat", auth, parentCatRouter);
-// app.use("/api/v1/order", auth, orderRouter);
-// app.use("/api/v1/query", auth, queryrouter);
+import adminRouter from "./src/routers/adminRouter";
+import categoryRouter from "./src/routers/categoryRouter";
+import paymentRouter from "./src/routers/paymentRouter";
+import { auth } from "./src/middleware/authMiddleware";
+import productRouter from "./src/routers/productRouter";
+import orderRouter from "./src/routers/orderRouter";
+import parentCatRouter from "./src/routers/parentCatRouter";
+import queryrouter from "./src/routers/query.router";
+app.use("/api/v1/admin", adminRouter);
+app.use("/api/v1/category", auth, categoryRouter);
+app.use("/api/v1/payment", auth, paymentRouter);
+app.use("/api/v1/product", auth, productRouter);
+app.use("/api/v1/parentCat", auth, parentCatRouter);
+app.use("/api/v1/order", auth, orderRouter);
+app.use("/api/v1/query", auth, queryrouter);
 
-app.get("/", (req: Request, res: Response) => {
+app.get("/", (res: Response) => {
   res.json({
     status: "success",
     message: "Server is up and running",
   });
 });
-const errorHandle: ErrorRequestHandler = (error, req, res) => {
+const errorHandle: ErrorRequestHandler = (
+  error,
+  req: Request,
+  res: Response
+): Response => {
   const code = error.statusCode || 500;
-  res.status(code).json({
-    status: "error",
+  return res.status(code).json({
     message: error.message,
+    status: "error",
   });
 };
 app.use(errorHandle);
