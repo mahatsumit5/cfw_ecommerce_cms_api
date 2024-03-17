@@ -37,7 +37,7 @@ export const deleteFile = (file) => {
 
   const s3 = new S3({
     region,
-    accessKey,
+    accessKeyId: accessKey,
     secretKey,
   });
   try {

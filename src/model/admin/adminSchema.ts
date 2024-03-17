@@ -1,6 +1,22 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
 
-const adminSchema = new mongoose.Schema(
+export interface IUser extends Document {
+  _id: string;
+  status: string;
+  fName: string;
+  lName: string;
+  phone?: string;
+  email: string;
+  password: string | undefined;
+  isVerified: boolean;
+  verificationCode: string | null;
+  refreshJWT: string | undefined;
+  address?: string;
+  profile: string | null;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+const adminSchema = new mongoose.Schema<IUser>(
   {
     status: {
       type: String,

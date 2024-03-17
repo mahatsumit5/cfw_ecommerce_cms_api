@@ -1,5 +1,5 @@
-import orderSchema from "../orders/orderSchema.js";
-import Product from "../product/productSchema.js";
+import orderSchema from "../orders/orderSchema";
+import Product from "../product/productSchema";
 
 export const countProductsByCategory = async () => {
   const agg = await Product.aggregate([

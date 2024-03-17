@@ -1,5 +1,13 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
 
+export interface InterfaceSession extends Document {
+  _id: string;
+  token: string;
+  associate: string;
+  __v: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
 const sessionSchema = new mongoose.Schema(
   {
     token: {

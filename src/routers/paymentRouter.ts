@@ -19,7 +19,7 @@ router.post("/", newPaymentvalidation, async (req, res, next) => {
   }
 });
 
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
   try {
     const data = await getPaymentOptions();
     data

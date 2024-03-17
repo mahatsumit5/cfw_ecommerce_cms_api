@@ -6,7 +6,7 @@ import {
   findTotalSalesByDate,
   getorderSalesByDate,
   getorderStatus,
-} from "../model/query/query.model.js";
+} from "../model/query/query.model";
 const router = Router();
 
 router.get("/", async (req, res, next) => {

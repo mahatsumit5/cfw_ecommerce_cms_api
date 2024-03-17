@@ -1,11 +1,15 @@
 import nodemailer from "nodemailer";
+import { nodemailerParams } from "../types";
 // smtp configurations
 
-export const accountVerificationEmail = async (user, link) => {
+export const accountVerificationEmail = async (
+  user: nodemailerParams,
+  link: string
+) => {
   const { email, fName, lName } = user;
   const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
+    host: process.env.SMTP_HOST || "",
+    port: Number(process.env.SMTP_PORT),
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
@@ -43,11 +47,11 @@ please follow the link below to activate your account.
   console.log("Message sent: %s", info.messageId);
   // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
 };
-export const accountVerifiedEmail = async (user) => {
+export const accountVerifiedEmail = async (user: nodemailerParams) => {
   const { email, fName, lName } = user;
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
+    port: Number(process.env.SMTP_PORT),
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
@@ -82,11 +86,14 @@ please follow the link below to login into your account.
   // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
 };
 
-export const sendOTPNotification = async (user, otp) => {
+export const sendOTPNotification = async (
+  user: nodemailerParams,
+  otp: string
+) => {
   const { email, fName, lName } = user;
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
+    port: Number(process.env.SMTP_PORT),
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
@@ -123,11 +130,11 @@ This is your one-time-password
   console.log("Message sent: %s", info.messageId);
   // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
 };
-export const sendPassWordChangedAlert = async (user) => {
+export const sendPassWordChangedAlert = async (user: nodemailerParams) => {
   const { email, fName, lName } = user;
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
+    port: Number(process.env.SMTP_PORT),
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
@@ -180,11 +187,11 @@ Thank you for using our service.
   console.log("Message sent: %s", info.messageId);
   // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
 };
-export const sendUserUpdateAlert = async (user) => {
+export const sendUserUpdateAlert = async (user: nodemailerParams) => {
   const { email, fName, lName } = user;
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
+    port: Number(process.env.SMTP_PORT),
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,

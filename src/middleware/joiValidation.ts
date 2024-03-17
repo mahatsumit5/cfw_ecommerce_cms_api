@@ -1,10 +1,17 @@
 import Joi from "joi";
+
+import { NextFunction, Request, Response } from "express";
+
 const SHORTSTE = Joi.string().min(2).max(100);
 const SHORTSTEREQ = Joi.string().min(3).max(100).required();
 const LONGTSTR = Joi.string().min(3).max(10000);
 const NUM = Joi.number();
 const NUMREQ = Joi.number().required();
-export const newAdminValidation = (req, res, next) => {
+export const newAdminValidation = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     //define the schema
 
@@ -33,7 +40,11 @@ export const newAdminValidation = (req, res, next) => {
     next(error);
   }
 };
-export const loginValidation = (req, res, next) => {
+export const loginValidation = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     //define the schema
 
@@ -60,7 +71,11 @@ export const loginValidation = (req, res, next) => {
   }
 };
 
-export const newAdminVerificationValidation = (req, res, next) => {
+export const newAdminVerificationValidation = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     //define the schema
     const schema = Joi.object({
@@ -82,7 +97,11 @@ export const newAdminVerificationValidation = (req, res, next) => {
 };
 
 //new product avlidation
-export const newProductValidation = (req, res, next) => {
+export const newProductValidation = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     //define the schema
     req.body.salesPrice = req.body.salesPrice || 0;
@@ -113,7 +132,11 @@ export const newProductValidation = (req, res, next) => {
     next(error);
   }
 };
-export const updateProductValidation = (req, res, next) => {
+export const updateProductValidation = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     console.log(req.body);
     const { _id, status, title } = req.body;
@@ -167,7 +190,11 @@ export const updateProductValidation = (req, res, next) => {
   }
 };
 // payment methods validation
-export const newPaymentvalidation = (req, res, next) => {
+export const newPaymentvalidation = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     //define the schema
 

@@ -7,7 +7,7 @@ import {
   getMainCat,
   getMainCatById,
   updateMainCat,
-} from "../model/parentCat/parentCatModel.js";
+} from "../model/parentCat/parentCatModel";
 
 const router = express.Router();
 
@@ -47,7 +47,7 @@ router.post("/", async (req, res, next) => {
           status: "error",
           message: "Unable to add new category",
         });
-  } catch (error) {
+  } catch (error: Error | any) {
     if (error.message.includes("E11000 duplicate key error")) {
       error.statusCode = 400;
       error.message = "This title is already avilable in the database.";
@@ -59,11 +59,11 @@ router.put("/", async (req, res, next) => {
   try {
     const { value, ...rest } = req.body;
     const result = await updateMainCat(value, rest);
-    const { title, status } = result;
+
     result?._id
       ? res.json({
           status: "success",
-          message: `${title} is ${status}`,
+          message: `${result.title} is ${result.status}`,
         })
       : res.json({
           status: "error",

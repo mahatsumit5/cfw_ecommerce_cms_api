@@ -21,6 +21,7 @@ app.use(express.json()); //send data in json format to frontEnd
 mongoConnect(); //connecting to mongoDB
 
 import path from "path";
+import { createAccessJWT, verifyAccessJWT } from "./src/utils/jwt";
 
 const directory: string = path.resolve();
 // convert public to static
