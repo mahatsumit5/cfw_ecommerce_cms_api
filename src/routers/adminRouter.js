@@ -18,6 +18,7 @@ import {
   accountVerifiedEmail,
   sendOTPNotification,
   sendPassWordChangedAlert,
+  sendUserUpdateAlert,
 } from "../utils/nodeMailer.js";
 import { v4 as uuidv4 } from "uuid";
 import { createAccessJWT, createRefreshJWT } from "../utils/jwt.js";
@@ -141,7 +142,9 @@ router.put("/change-password", auth, async (req, res, next) => {
     const { newPassword, oldPassword } = req.body;
     const { email } = req.userInfo;
     const user = await getAdminByEmail(email);
+    console.log(user);
     const isMatched = checkPassword(oldPassword, user.password);
+    console.log(isMatched);
     if (isMatched) {
       const result = await updateById(user._id, { password: newPassword });
       await sendUserUpdateAlert(user);
@@ -254,6 +257,7 @@ router.post("/logout", async (req, res, next) => {
 
     if (refreshJWT && _id) {
       const data = await updateById(_id, { refreshJWT: "" });
+      console.log(data);
       data?._id &&
         res.json({
           status: "success",
@@ -314,34 +318,25 @@ router.post("/change-password", async (req, res, next) => {
     const user = await getAdminByEmail(email);
     const newPassword = hashPassword(password);
     if (user?._id) {
-      console.log(user);
       const result = await findOneByFilterAndDelete({
         associate: email,
         token: otp,
       });
-      if (result?._id) {
-        console.log(result);
 
-        const isUpdated = await updateById(user._id, { password: newPassword });
-        if (isUpdated) {
-          await sendPassWordChangedAlert(user);
-          return res.json({
-            status: "success",
-            message: "password has been updated",
-          });
-        }
-
+      const isUpdated = await updateById(user._id, { password: newPassword });
+      if (isUpdated?._id) {
+        await sendPassWordChangedAlert(user);
+        return res.json({
+          status: "success",
+          message: "password has been updated",
+        });
+      } else {
         res.json({
           status: "error",
           message: "error while updating password",
         });
-        return;
       }
     }
-    res.json({
-      status: "error",
-      message: "not successfull",
-    });
   } catch (error) {
     next(error);
   }

@@ -4,10 +4,10 @@ import { insertNewSession } from "../model/session/sessionModel.js";
 import { getAdminByEmailandUpdate } from "../model/admin/adminModel.js";
 
 //// create accessJWT and store in session table: short live 15m
-export const createAccessJWT = async (email) => {
+export const createAccessJWT = async (email: string) => {
   //expires every 5minutes
   const token = jwt.sign({ email }, process.env.JWT_ACCESS_SECRET, {
-    expiresIn: "20m",
+    expiresIn: "15m",
   });
   await insertNewSession({ token, associate: email });
   return token;

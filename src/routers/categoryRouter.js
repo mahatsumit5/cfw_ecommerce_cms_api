@@ -28,14 +28,12 @@ router.get("/:_id?", async (req, res, next) => {
 router.post("/", upload.single("image"), async (req, res, next) => {
   try {
     const { title, parentCategory } = req.body;
-    !title &&
-      res.json({
-        status: "error",
-        message: "Cannot Post Empty title",
-      });
+
     if (req.file?.path) {
       const { Location } = await uploadFile(req.file);
       req.body.image = Location;
+    } else {
+      throw new Error("Image is required.");
     }
     const obj = {
       image: req.body.image,

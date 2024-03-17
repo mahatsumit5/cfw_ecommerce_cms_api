@@ -1,13 +1,11 @@
 import Product from "./productSchema.js";
 
 export const addProduct = (obj) => {
-  console.log(obj);
   return Product(obj).save();
 };
 
 export const getProducts = async () => {
   const products = await Product.find().populate("category");
-  console.log(products);
   return products;
 };
 

@@ -45,10 +45,10 @@ export const refreshAuth = async (req, res, next) => {
   try {
     // 1.get  the refreshAuth
     const { authorization } = req.headers;
-    console.log(authorization);
+    console.log("this is authprization from headers", authorization);
     // 2.decode the jwt
     const decoded = verifyRefreshJWT(authorization);
-    console.log(decoded);
+    console.log("This si decoded", decoded);
     // 3. extract email and get user by email
     if (decoded?.email) {
       // 4. check fif the user is active
@@ -56,12 +56,13 @@ export const refreshAuth = async (req, res, next) => {
         email: decoded.email,
         refreshJWT: authorization,
       });
+      console.log("this is user", user);
       if (user?._id && user?.status === "active") {
         // create new accessJWT
         const accessJWT = await createAccessJWT(decoded.email);
         return res.json({
           status: "success",
-          message: "Token Refreshed Successfully!",
+          message: "Session expired!!.Please login Again.",
           accessJWT,
         });
       }
