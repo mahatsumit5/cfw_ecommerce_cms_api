@@ -28,10 +28,11 @@ router.get("/:_id?", async (req, res, next) => {
 router.post("/", upload.single("image"), async (req, res, next) => {
   try {
     const { title, parentCategory } = req.body;
-
+    const file = req.file;
     if (req.file?.path) {
-      const { Location } = await uploadFile(req.file);
-      req.body.image = Location;
+      const data = await uploadFile(req.file);
+
+      req.body.image = data?.Location;
     } else {
       throw new Error("Image is required.");
     }
@@ -66,8 +67,8 @@ router.put("/", upload.single("image"), async (req, res, next) => {
     const { _id, ...rest } = req.body;
 
     if (req.file?.path) {
-      const { Location } = await uploadFile(req.file);
-      req.body.image = Location;
+      const data = await uploadFile(req.file);
+      req.body.image = data?.Location;
     }
     const result = await updateCatagory(_id, {
       ...rest,

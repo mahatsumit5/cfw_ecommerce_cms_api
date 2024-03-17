@@ -2,16 +2,16 @@ import S3 from "aws-sdk/clients/s3.js";
 import fs from "fs";
 
 //upload file to s3
-const uploadFile = (file) => {
-  const bucketName = process.env.AWS_BUCKET_NAME;
+const uploadFile = (file: Express.Multer.File) => {
+  const bucketName = process.env.AWS_BUCKET_NAME as string;
   const region = process.env.AWS_REGION;
   const accessKey = process.env.AWS_ACCESS_KEY;
   const secretKey = process.env.AWS_SECRET_KEY;
 
   const s3 = new S3({
     region,
-    accessKey,
-    secretKey,
+    accessKeyId: accessKey,
+    secretAccessKey: secretKey,
   });
   try {
     console.log(file.path);
@@ -28,9 +28,9 @@ const uploadFile = (file) => {
   }
 };
 
-export const deleteFile = (file) => {
+export const deleteFile = (file: string) => {
   console.log(file, "coming from delete function");
-  const bucketName = process.env.AWS_BUCKET_NAME;
+  const bucketName = process.env.AWS_BUCKET_NAME as string;
   const region = process.env.AWS_REGION;
   const accessKey = process.env.AWS_ACCESS_KEY;
   const secretKey = process.env.AWS_SECRET_KEY;
@@ -38,7 +38,7 @@ export const deleteFile = (file) => {
   const s3 = new S3({
     region,
     accessKeyId: accessKey,
-    secretKey,
+    secretAccessKey: secretKey,
   });
   try {
     const deleteParams = {

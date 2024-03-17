@@ -13,7 +13,13 @@ export const getAdmin = () => {
 export const updateById = (_id: string, userObj: object) => {
   return adminSchema.findByIdAndUpdate(_id, userObj, { new: true });
 };
-export const updateUser = ({ _id, ...rest }: { _id: string }) => {
+export const updateUser = ({
+  _id,
+  ...rest
+}: {
+  _id: string;
+  profile?: string;
+}) => {
   return adminSchema.findByIdAndUpdate(_id, rest, { new: true });
 };
 export const updateByJWT = (jwt: { jwt: string }, obj: object) => {

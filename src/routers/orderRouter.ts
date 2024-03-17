@@ -4,7 +4,7 @@ import {
   getOrderById,
   getOrders,
   updateOrder,
-} from "../model/orders/orderModel.js";
+} from "../model/orders/orderModel";
 const router = express.Router();
 
 router.get("/:_id?", async (req, res, next) => {
@@ -27,10 +27,10 @@ router.get("/:_id?", async (req, res, next) => {
   }
 });
 
-router.patch("", async (req, res, next) => {
+router.patch("/", async (req, res, next) => {
   try {
     const result = await updateOrder(req.body);
-    result._id
+    result?._id
       ? res.json({
           status: "success",
           message: "Your order status has been updated",

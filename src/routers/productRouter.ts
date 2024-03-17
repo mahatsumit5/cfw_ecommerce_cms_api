@@ -7,24 +7,29 @@ import {
   getProductById,
   getProducts,
   updateProductById,
-} from "../model/product/productModel.js";
+} from "../model/product/productModel";
 import {
   newProductValidation,
   updateProductValidation,
-} from "../middleware/joiValidation.js";
-import { upload } from "../middleware/multerMiddleware.js";
-import uploadFile, { deleteFile } from "../utils/s3Bucket.js";
+} from "../middleware/joiValidation";
+import { upload } from "../middleware/multerMiddleware";
+import uploadFile, { deleteFile } from "../utils/s3Bucket";
+
 const router = express.Router();
+
 router.post(
   "/",
   upload.array("images", 5),
   newProductValidation,
   async (req, res, next) => {
     try {
-      if (req.files.length) {
-        const arg = req.files.flatMap(async (element) => {
-          const { Location } = await uploadFile(element);
-          return Location;
+      const img = req.file
+        ? req.files?.map((item: Express.Multer.File) => item.filename)
+        : [];
+      if (req.files?.length) {
+        const arg = req.files.map(async (element: Express.Multer.File) => {
+          const data = await uploadFile(element);
+          return data?.Location;
         });
         req.body.images = await Promise.all(arg);
       }
@@ -32,17 +37,18 @@ router.post(
       req.body.slug = slugify(req.body.title, { lower: true, trim: true });
 
       const result = await addProduct(req.body);
+
       result?._id
         ? res.json({
             status: "success",
             message: "New product Sucessfully added",
-            imagesToDelete: req.files.map((item) => item.filename),
+            imagesToDelete: img,
           })
         : res.json({
             status: "error",
             message: "Unable to add new category",
           });
-    } catch (error) {
+    } catch (error: Error | any) {
       if (error.message.includes("E11000 duplicate key error")) {
         error.statusCode = 200;
         error.message = "This slug is already avilable in the database.";
@@ -60,7 +66,7 @@ router.get("/:_id?", async (req, res, next) => {
       message: "Results received",
       result,
     });
-  } catch (error) {
+  } catch (error: Error | any) {
     next(error);
   }
 });
@@ -74,15 +80,16 @@ router.put(
 
       if (req.files?.length) {
         const product = await getProductById(_id);
-        console.log(product);
-        for (let i = 0; i < product.images.length; i++) {
-          if (images.indexOf(product.images[i]) === -1) {
-            deleteFile(product.images[i].slice(57));
+        if (product?.images) {
+          for (let i = 0; i < product.images.length; i++) {
+            if (images.indexOf(product.images[i]) === -1) {
+              deleteFile(product.images[i].slice(57));
+            }
           }
         }
-        const newImages = req.files.map(async (item) => {
-          const { Location } = await uploadFile(item);
-          return Location;
+        const newImages = req.files.map(async (item: Express.Multer.File) => {
+          const data = await uploadFile(item);
+          return data?.Location;
         });
         req.body.images = [
           ...req.body.images,
@@ -96,13 +103,15 @@ router.put(
         ? res.json({
             status: "success",
             message: "updated Successfull",
-            imagesToDelete: req?.files?.map((item) => item),
+            imagesToDelete: req?.files?.map(
+              (item: Express.Multer.File) => item
+            ),
           })
         : res.json({
             status: "error",
             message: "Unable to update.",
           });
-    } catch (error) {
+    } catch (error: Error | any) {
       console.log(error);
       next(error);
     }
@@ -111,9 +120,9 @@ router.put(
 router.delete("/:_id", async (req, res, next) => {
   try {
     const { _id } = req.params;
-    const { images } = await getProductById(_id);
+    const data = await getProductById(_id);
 
-    images.map((img) => deleteFile(img.slice(57)));
+    data?.images.map((img) => deleteFile(img.slice(57)));
 
     const result = await deleteProductById(_id);
     result?._id
@@ -125,7 +134,7 @@ router.delete("/:_id", async (req, res, next) => {
           status: "error",
           message: "Unable to delete",
         });
-  } catch (error) {
+  } catch (error: Error | any) {
     next(error);
   }
 });
@@ -151,7 +160,7 @@ router.post("/deleteFileFromServer", async (req, res, next) => {
         message: "File deleted from the server",
       });
     });
-  } catch (error) {
+  } catch (error: Error | any) {
     next(error);
   }
 });

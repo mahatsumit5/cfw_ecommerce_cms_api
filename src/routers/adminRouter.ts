@@ -6,31 +6,32 @@ import {
   updateById,
   updateByJWT,
   updateUser,
-} from "../model/admin/adminModel.js";
-import { checkPassword, hashPassword } from "../utils/bcrypt.js";
+} from "../model/admin/adminModel";
+import { checkPassword, hashPassword } from "../utils/bcrypt";
 import {
   loginValidation,
   newAdminValidation,
   newAdminVerificationValidation,
-} from "../middleware/joiValidation.js";
+} from "../middleware/joiValidation";
 import {
   accountVerificationEmail,
   accountVerifiedEmail,
   sendOTPNotification,
   sendPassWordChangedAlert,
   sendUserUpdateAlert,
-} from "../utils/nodeMailer.js";
+} from "../utils/nodeMailer";
 import { v4 as uuidv4 } from "uuid";
-import { createAccessJWT, createRefreshJWT } from "../utils/jwt.js";
-import { auth, refreshAuth } from "../middleware/authMiddleware.js";
+import { createAccessJWT, createRefreshJWT } from "../utils/jwt";
+import { auth, refreshAuth } from "../middleware/authMiddleware";
 import {
   findOneAndDelete,
   findOneByFilterAndDelete,
   insertNewSession,
-} from "../model/session/sessionModel.js";
-import { generateOTP } from "../middleware/otpGenerator.js";
-import { upload } from "../middleware/multerMiddleware.js";
-import uploadFile, { deleteFile } from "../utils/s3Bucket.js";
+} from "../model/session/sessionModel";
+import { generateOTP } from "../middleware/otpGenerator";
+import { upload } from "../middleware/multerMiddleware";
+import uploadFile, { deleteFile } from "../utils/s3Bucket";
+import { IUser } from "../model/admin/adminSchema";
 const router = express.Router();
 
 router.get("/", auth, async (req, res, next) => {
@@ -40,7 +41,7 @@ router.get("/", auth, async (req, res, next) => {
       message: "userInfo",
       user: req.userInfo, //comes from auth middleware
     });
-  } catch (error) {
+  } catch (error: Error | any) {
     next(error);
   }
 });
@@ -53,7 +54,7 @@ router.get("/get-admins", auth, async (req, res, next) => {
       message: "userInfo",
       admins,
     });
-  } catch (error) {
+  } catch (error: Error | any) {
     next(error);
   }
 });
@@ -75,7 +76,7 @@ router.post("/", newAdminValidation, async (req, res, next) => {
       status: "error",
       message: "Account Creating not Successfull",
     });
-  } catch (error) {
+  } catch (error: Error | any) {
     if (error.message.includes("E11000 duplicate key error")) {
       error.statusCode = 400;
       error.message =
@@ -91,8 +92,8 @@ router.put("/", auth, upload.single("profile"), async (req, res, next) => {
     let result;
     const { ID, profile, password, email, ...rest } = req.body;
     if (req.file?.path) {
-      const { Location } = await uploadFile(req.file);
-      rest.profile = Location;
+      const data = await uploadFile(req.file);
+      rest.profile = data?.Location;
     }
 
     const user = await getAdminByEmail(email);
@@ -105,7 +106,7 @@ router.put("/", auth, upload.single("profile"), async (req, res, next) => {
       });
       s3ImageKey !== "default.jpg" && deleteFile(s3ImageKey);
     } else {
-      passwordMatched = checkPassword(password, user.password);
+      passwordMatched = checkPassword(password, user?.password as string);
     }
 
     if (passwordMatched) {
@@ -115,7 +116,7 @@ router.put("/", auth, upload.single("profile"), async (req, res, next) => {
         ? res.json({
             status: "success",
             message: "User updated",
-            imageToDelete: req.file.filename,
+            imageToDelete: req?.file ? req.file.filename : "",
           })
         : res.json({
             status: "error",
@@ -132,7 +133,7 @@ router.put("/", auth, upload.single("profile"), async (req, res, next) => {
           status: "error",
           message: "Incorrect password",
         });
-  } catch (error) {
+  } catch (error: Error | any) {
     next(error);
   }
 });
@@ -140,14 +141,16 @@ router.put("/change-password", auth, async (req, res, next) => {
   try {
     console.log(req.body);
     const { newPassword, oldPassword } = req.body;
-    const { email } = req.userInfo;
-    const user = await getAdminByEmail(email);
-    console.log(user);
-    const isMatched = checkPassword(oldPassword, user.password);
-    console.log(isMatched);
+    const data = req.userInfo;
+    const user = await getAdminByEmail(data?.email as string);
+
+    const isMatched = checkPassword(oldPassword, user?.password || "");
+
     if (isMatched) {
-      const result = await updateById(user._id, { password: newPassword });
-      await sendUserUpdateAlert(user);
+      const result = await updateById(user?._id || "", {
+        password: newPassword,
+      });
+      await sendUserUpdateAlert(user as IUser);
 
       result?._id
         ? res.json({
@@ -164,7 +167,7 @@ router.put("/change-password", auth, async (req, res, next) => {
       status: "error",
       message: "Old Password does not matched with current password",
     });
-  } catch (error) {
+  } catch (error: Error | any) {
     next(error);
   }
 });
@@ -177,12 +180,12 @@ router.post("/login", loginValidation, async (req, res, next) => {
     const user = await getAdminByEmail(email);
     if (user?._id) {
       //check the passwords
-      const passwordMatched = checkPassword(password, user.password);
+      const passwordMatched = checkPassword(password, user.password as string);
       //create 2 jwts:
       //access token for protected routes and refresh token to generate new access tokens after expiration of current one
       if (passwordMatched) {
         const accessJWT = await createAccessJWT(email);
-        const refreshJWT = await createRefreshJWT(email);
+        const refreshJWT = createRefreshJWT(email);
         return res.json({
           status: "success",
           message: `Welcome Back ${user.fName} ${user.lName}`,
@@ -198,7 +201,7 @@ router.post("/login", loginValidation, async (req, res, next) => {
       status: "error",
       message: "USER NOT FOUND",
     });
-  } catch (error) {
+  } catch (error: Error | any) {
     next(error);
   }
 });
@@ -229,7 +232,7 @@ router.put(
                 status: "success",
                 message: "Account Verified",
               })
-            : next(error);
+            : next(Error);
           return;
         }
         res.json({
@@ -242,8 +245,8 @@ router.put(
         status: "error",
         message: "Email not found",
       });
-    } catch (error) {
-      next(error);
+    } catch (error: Error | any) {
+      next: error;
     }
   }
 );
@@ -263,7 +266,7 @@ router.post("/logout", async (req, res, next) => {
           status: "success",
         });
     }
-  } catch (error) {
+  } catch (error: Error | any) {
     next(error);
   }
 });
@@ -273,13 +276,13 @@ router.post("/logoutUser", async (req, res, next) => {
     await findOneAndDelete(accessJWT);
 
     if (refreshJWT) {
-      const data = await updateByJWT({ refreshJWT }, { refreshJWT: "" });
+      const data = await updateByJWT({ jwt: refreshJWT }, { refreshJWT: "" });
       data?._id &&
         res.json({
           status: "success",
         });
     }
-  } catch (error) {
+  } catch (error: Error | any) {
     next(error);
   }
 });
@@ -307,7 +310,7 @@ router.post("/request-otp", async (req, res, next) => {
       status: "success",
       message: "Check your email for verfication code",
     });
-  } catch (error) {
+  } catch (error: Error | any) {
     next(error);
   }
 });
@@ -337,8 +340,8 @@ router.post("/change-password", async (req, res, next) => {
         });
       }
     }
-  } catch (error) {
-    next(error);
+  } catch (err: Error | any) {
+    next(err);
   }
 });
 
