@@ -4,8 +4,8 @@ import {
   deletePayment,
   getPaymentOptions,
   updatePayment,
-} from "../model/payment/paymentModel.js";
-import { newPaymentvalidation } from "../middleware/joiValidation.js";
+} from "../model/payment/paymentModel";
+import { newPaymentvalidation } from "../middleware/joiValidation";
 const router = express.Router();
 
 router.post("/", newPaymentvalidation, async (req, res, next) => {

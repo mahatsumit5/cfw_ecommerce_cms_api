@@ -42,23 +42,22 @@ app.use("/api/v1/parentCat", auth, parentCatRouter);
 app.use("/api/v1/order", auth, orderRouter);
 app.use("/api/v1/query", auth, queryrouter);
 
-app.get("/", (res: Response) => {
+app.get("/*", (req, res: Response) => {
   res.json({
     status: "success",
-    message: "Server is up and running",
+    message: "Welcome to Content Management System API",
   });
 });
-const errorHandle: ErrorRequestHandler = (
-  error,
-  req: Request,
-  res: Response
-): Response => {
-  const code = error.statusCode || 500;
-  return res.status(code).json({
-    message: error.message,
+
+const errorHandle: ErrorRequestHandler = (error, req, res) => {
+  const statusCode = res.statusCode ? res.statusCode : 500;
+
+  res.status(statusCode).json({
     status: "error",
+    message: error.message || "Internal Server error",
   });
 };
+
 app.use(errorHandle);
 
 app.listen(PORT, () => {

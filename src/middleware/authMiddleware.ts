@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { getAdminByEmail, getOneAdmin } from "../model/admin/adminModel.js";
+import { getAdminByEmail, getOneAdmin } from "../model/admin/adminModel";
 import {
   createAccessJWT,
   verifyAccessJWT,
