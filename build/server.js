@@ -7,8 +7,15 @@ const express_1 = __importDefault(require("express"));
 const mongoConfig_1 = require("./src/config/mongoConfig");
 const app = (0, express_1.default)();
 const PORT = Number(process.env.PORT) || 8000;
+<<<<<<< HEAD
 const dotenv_1 = require("dotenv");
 (0, dotenv_1.config)();
+=======
+console.log(PORT);
+const dotenv_1 = require("dotenv");
+(0, dotenv_1.config)();
+console.log(process.env.TZ);
+>>>>>>> typescript
 const morgan_1 = __importDefault(require("morgan"));
 const cors_1 = __importDefault(require("cors"));
 app.use((0, cors_1.default)());

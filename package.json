@@ -2,11 +2,11 @@
   "name": "cms-api",
   "version": "1.0.0",
   "description": "",
-  "type": "module",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon server.js",
-    "start": "node server.js",
+    "dev": "nodemon server.ts",
+    "start": "node ./build/server.js",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -27,5 +27,20 @@
     "sharp": "^0.32.6",
     "slugify": "^1.6.6",
     "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/aws-sdk": "^2.7.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/joi": "^17.2.3",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/morgan": "^1.9.9",
+    "@types/multer": "^1.4.11",
+    "@types/node": "^20.11.28",
+    "@types/nodemailer": "^6.4.14",
+    "@types/uuid": "^9.0.8",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.2"
   }
 }

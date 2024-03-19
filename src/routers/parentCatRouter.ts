@@ -1,61 +1,53 @@
 import express from "express";
-import {
-  addCategory,
-  deleteCategory,
-  getCategory,
-  getCategorybyId,
-  updateCatagory,
-} from "../model/categories/categoryModel.js";
+
 import slugify from "slugify";
-import { upload } from "../middleware/multerMiddleware.js";
-import uploadFile, { deleteFile } from "../utils/s3Bucket.js";
+import {
+  addMainCat,
+  deleteMainCat,
+  getMainCat,
+  getMainCatById,
+  updateMainCat,
+} from "../model/parentCat/parentCatModel";
+
 const router = express.Router();
 
 router.get("/:_id?", async (req, res, next) => {
   try {
     const { _id } = req.params;
-    const result = !_id ? await getCategory() : await getCategorybyId(_id);
+    const result = !_id ? await getMainCat() : await getMainCatById(_id);
 
     res.json({
       status: "success",
-      message: "Results received",
+      message: "Results receivedss",
       result,
     });
   } catch (error) {
     next(error);
   }
 });
-router.post("/", upload.single("image"), async (req, res, next) => {
+router.post("/", async (req, res, next) => {
   try {
-    const { title, parentCategory } = req.body;
+    const { title } = req.body;
     !title &&
       res.json({
         status: "error",
         message: "Cannot Post Empty title",
       });
-    if (req.file?.path) {
-      const { Location } = await uploadFile(req.file);
-      req.body.image = Location;
-    }
     const obj = {
-      image: req.body.image,
       title,
       slug: slugify(title, { lower: true, trim: true }),
-      parentCategory,
     };
-    const result = await addCategory(obj);
+    const result = await addMainCat(obj);
     result?._id
       ? res.json({
           status: "success",
           message: "New Category Sucessfully added",
-          result,
-          imagesToDelete: req.file.filename,
         })
       : res.json({
           status: "error",
           message: "Unable to add new category",
         });
-  } catch (error) {
+  } catch (error: Error | any) {
     if (error.message.includes("E11000 duplicate key error")) {
       error.statusCode = 400;
       error.message = "This title is already avilable in the database.";
@@ -63,40 +55,29 @@ router.post("/", upload.single("image"), async (req, res, next) => {
     next(error);
   }
 });
-router.put("/", upload.single("image"), async (req, res, next) => {
+router.put("/", async (req, res, next) => {
   try {
-    const { _id, ...rest } = req.body;
-
-    if (req.file?.path) {
-      const { Location } = await uploadFile(req.file);
-      req.body.image = Location;
-    }
-    const result = await updateCatagory(_id, {
-      ...rest,
-      image: req.body.image,
-    });
+    const { value, ...rest } = req.body;
+    const result = await updateMainCat(value, rest);
 
     result?._id
       ? res.json({
           status: "success",
-          message: `Update successfull`,
-          imagesToDelete: req?.file?.filename,
+          message: `${result.title} is ${result.status}`,
         })
       : res.json({
           status: "error",
-          message: "Unable to update new category",
+          message: "Unable to add new category",
         });
   } catch (error) {
-    console.log(error);
     next(error);
   }
 });
 router.delete("/", async (req, res, next) => {
   try {
     const { _id } = req.body;
-    const { image } = await getCategorybyId(_id);
-    deleteFile(image.slice(57));
-    const result = await deleteCategory(_id);
+    console.log(_id);
+    const result = await deleteMainCat(_id);
     result?._id
       ? res.json({
           status: "success",

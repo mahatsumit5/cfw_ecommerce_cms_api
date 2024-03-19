@@ -1,5 +1,5 @@
-import orderSchema from "../orders/orderSchema.js";
-import Product from "../product/productSchema.js";
+import orderSchema from "../orders/orderSchema";
+import Product from "../product/productSchema";
 
 export const countProductsByCategory = async () => {
   const agg = await Product.aggregate([
@@ -84,8 +84,6 @@ export const findBuyerWithMostItems = async () => {
       { $sort: { totalItemsBought: -1 } }, // Sort by totalItemsBought in descending order
       { $limit: 1 }, // Limit to the top buyer
     ]);
-
-    console.log("Buyer with most items:", buyerWithMostItems);
   } catch (error) {
     console.error("Error finding buyer with most items:", error);
   }
@@ -105,10 +103,8 @@ export const findTotalSalesByDate = async () => {
       { $sort: { _id: -1 } }, // Sort by date in ascending order
     ]);
 
-    console.log("Total sales by date:", totalSalesByDate);
     return totalSalesByDate;
   } catch (error) {
     console.error("Error finding total sales by date:", error);
   }
 };
-findTotalSalesByDate();
