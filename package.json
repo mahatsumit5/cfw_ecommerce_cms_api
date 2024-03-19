@@ -7,7 +7,8 @@
     "dev": "nodemon server.ts",
     "start": " npx tsc && node ./build/server.js",
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "git": "npx tsc && git init && git add .  && git commit -m \"init\""
   },
   "keywords": [],
   "author": "",
