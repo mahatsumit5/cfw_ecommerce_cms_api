@@ -18,7 +18,6 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
       // check if the user is active
       const user = await getAdminByEmail(decoded.email);
       if (user?._id && user?.status === "active") {
-        user.password = undefined;
         user.refreshJWT = undefined;
         req.userInfo = user;
 

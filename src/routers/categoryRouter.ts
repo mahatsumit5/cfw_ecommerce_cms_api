@@ -27,7 +27,7 @@ router.get("/:_id?", async (req, res, next) => {
 });
 router.post("/", upload.single("image"), async (req, res, next) => {
   try {
-    const { title, parentCategory } = req.body;
+    const { status, title, parentCategory } = req.body;
     const file = req.file;
     if (req.file?.path) {
       const data = await uploadFile(req.file);
@@ -37,6 +37,7 @@ router.post("/", upload.single("image"), async (req, res, next) => {
       throw new Error("Image is required.");
     }
     const obj = {
+      status,
       image: req.body.image,
       title,
       slug: slugify(title, { lower: true, trim: true }),

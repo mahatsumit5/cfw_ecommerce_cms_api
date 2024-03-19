@@ -141,14 +141,14 @@ router.put("/change-password", auth, async (req, res, next) => {
   try {
     console.log(req.body);
     const { newPassword, oldPassword } = req.body;
-    const data = req.userInfo;
-    const user = await getAdminByEmail(data?.email as string);
+    const user = req.userInfo;
+    console.log(user);
 
     const isMatched = checkPassword(oldPassword, user?.password || "");
 
     if (isMatched) {
       const result = await updateById(user?._id || "", {
-        password: newPassword,
+        password: hashPassword(newPassword),
       });
       await sendUserUpdateAlert(user as IUser);
 
@@ -165,7 +165,7 @@ router.put("/change-password", auth, async (req, res, next) => {
     }
     res.json({
       status: "error",
-      message: "Old Password does not matched with current password",
+      message: "Incorrect password",
     });
   } catch (error: Error | any) {
     next(error);
@@ -315,7 +315,7 @@ router.post("/request-otp", async (req, res, next) => {
   }
 });
 
-router.post("/change-password", async (req, res, next) => {
+router.post("/change-password", auth, async (req, res, next) => {
   try {
     const { email, otp, password } = req.body;
     const user = await getAdminByEmail(email);

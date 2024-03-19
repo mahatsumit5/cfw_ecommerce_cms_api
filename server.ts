@@ -7,10 +7,8 @@ import express, {
 import { mongoConnect } from "./src/config/mongoConfig";
 const app: Application = express();
 const PORT: Number = Number(process.env.PORT) || 8000;
-console.log(PORT);
 import { config } from "dotenv";
 config(); //using dotenv to process dotenv key
-console.log(process.env.TZ);
 // Middleware
 import morgan from "morgan";
 import cors from "cors";
