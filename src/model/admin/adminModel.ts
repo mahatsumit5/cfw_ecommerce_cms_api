@@ -22,8 +22,17 @@ export const updateUser = ({
 }) => {
   return adminSchema.findByIdAndUpdate(_id, rest, { new: true });
 };
-export const updateByJWT = (jwt: { jwt: string }, obj: object) => {
-  return adminSchema.findOneAndUpdate(jwt, obj, { new: true });
+export const updateUserByJWT = ({
+  refreshJwt,
+  updateData,
+}: {
+  refreshJwt: string;
+  updateData: any;
+}) => {
+  return adminSchema.findOneAndUpdate(
+    { refreshJWT: refreshJwt },
+    { ...updateData }
+  );
 };
 
 export const getOneAdmin = (filter: object) => {

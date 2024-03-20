@@ -8,7 +8,7 @@
     "start": "node build/server.js",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "git": "npx tsc && git init && git add .  && git commit -m \"build folder pushed\"  && git push"
+    "git": "npx tsc && git init && git add .  && git commit -m \"production ready\"  && git push"
   },
   "keywords": [],
   "author": "",

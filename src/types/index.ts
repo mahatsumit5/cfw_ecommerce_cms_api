@@ -20,3 +20,6 @@ declare global {
     }
   }
 }
+export interface CustomError extends Error {
+  statusCode: number;
+}

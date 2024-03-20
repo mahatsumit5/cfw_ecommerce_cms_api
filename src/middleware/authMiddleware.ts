@@ -5,6 +5,7 @@ import {
   verifyAccessJWT,
   verifyRefreshJWT,
 } from "../utils/jwt";
+import { CustomError } from "../types";
 
 export const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -29,10 +30,9 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
       status: "error",
       message: "Unauthorized access",
     });
-  } catch (error: Error | any) {
-    console.log(error, "--------inside auth function");
+  } catch (error: CustomError | any) {
     if (error.message.includes("jwt expired")) {
-      error.statusCode = 402;
+      error.statusCode = 403;
       error.message = "Your token has expired. Please login Again";
     }
     if (error.message.includes("invalid signature")) {
@@ -60,7 +60,8 @@ export const refreshAuth = async (
         email: decoded.email,
         refreshJWT: authorization,
       });
-      if (user?._id && user?.status === "active") {
+
+      if (user?._id) {
         // create new accessJWT
         const accessJWT = await createAccessJWT(decoded.email);
         return res.json({
@@ -74,7 +75,7 @@ export const refreshAuth = async (
       status: "error",
       message: "Unauthorized",
     });
-  } catch (error) {
+  } catch (error: CustomError | any) {
     next(error);
   }
 };

@@ -4,8 +4,8 @@ import {
   getAdmin,
   getAdminByEmail,
   updateById,
-  updateByJWT,
   updateUser,
+  updateUserByJWT,
 } from "../model/admin/adminModel";
 import { checkPassword, hashPassword } from "../utils/bcrypt";
 import {
@@ -184,7 +184,7 @@ router.post("/login", loginValidation, async (req, res, next) => {
       //access token for protected routes and refresh token to generate new access tokens after expiration of current one
       if (passwordMatched) {
         const accessJWT = await createAccessJWT(email);
-        const refreshJWT = createRefreshJWT(email);
+        const refreshJWT = await createRefreshJWT(email);
         return res.json({
           status: "success",
           message: `Welcome Back ${user.fName} ${user.lName}`,
@@ -254,37 +254,34 @@ router.get("/get-accessjwt", refreshAuth);
 
 router.post("/logout", async (req, res, next) => {
   try {
-    const { accessJWT, refreshJWT, _id } = req.body;
-    await findOneAndDelete(accessJWT);
-
-    if (refreshJWT && _id) {
-      const data = await updateById(_id, { refreshJWT: "" });
-      console.log(data);
-      data?._id &&
-        res.json({
-          status: "success",
-        });
-    }
-  } catch (error: Error | any) {
-    next(error);
-  }
-});
-router.post("/logoutUser", async (req, res, next) => {
-  try {
     const { accessJWT, refreshJWT } = req.body;
+    if (!accessJWT || !refreshJWT) {
+      return res.status(400).json({
+        status: "error",
+        message: "Token is required!",
+      });
+    }
     await findOneAndDelete(accessJWT);
 
-    if (refreshJWT) {
-      const data = await updateByJWT({ jwt: refreshJWT }, { refreshJWT: "" });
-      data?._id &&
-        res.json({
+    const user = await updateUserByJWT({
+      refreshJwt: refreshJWT,
+      updateData: { refreshJWT: "" },
+    });
+
+    user?._id
+      ? res.json({
           status: "success",
+          message: "Logged out successfully!",
+        })
+      : res.status(401).json({
+          status: "error",
+          message: "Something went wrong while logging out",
         });
-    }
   } catch (error: Error | any) {
     next(error);
   }
 });
+
 router.post("/request-otp", async (req, res, next) => {
   try {
     const user = await getAdminByEmail(req.body.email);
