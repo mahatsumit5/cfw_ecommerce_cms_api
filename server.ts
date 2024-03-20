@@ -48,7 +48,8 @@ app.get("/*", (req, res: Response) => {
 });
 
 const errorHandle: ErrorRequestHandler = (error, req, res) => {
-  const statusCode = res.statusCode ? res.statusCode : 500;
+  console.log("this is coming from server-------", error);
+  const statusCode = error.statusCode ? error.statusCode : 500;
 
   res.status(statusCode).json({
     status: "error",

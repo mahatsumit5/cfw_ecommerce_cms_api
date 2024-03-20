@@ -7,7 +7,7 @@ import { jwtReturnType } from "../types";
 export const createAccessJWT = async (email: string) => {
   //expires every 5minutes
   const token = jwt.sign({ email }, process.env.JWT_ACCESS_SECRET as string, {
-    expiresIn: "15m",
+    expiresIn: "1m",
   });
   await insertNewSession({ token, associate: email });
   return token;
@@ -27,7 +27,7 @@ export const createRefreshJWT = (email: string): string => {
     { email },
     process.env.JWT_REFRESH_SECRET as string,
     {
-      expiresIn: "30d",
+      expiresIn: "2m",
     }
   );
 

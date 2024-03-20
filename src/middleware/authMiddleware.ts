@@ -30,8 +30,9 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
       message: "Unauthorized access",
     });
   } catch (error: Error | any) {
+    console.log(error, "--------inside auth function");
     if (error.message.includes("jwt expired")) {
-      error.statusCode = 403;
+      error.statusCode = 402;
       error.message = "Your token has expired. Please login Again";
     }
     if (error.message.includes("invalid signature")) {
@@ -50,10 +51,8 @@ export const refreshAuth = async (
   try {
     // 1.get  the refreshAuth
     const { authorization } = req.headers;
-    console.log("this is authprization from headers", authorization);
     // 2.decode the jwt
     const decoded = verifyRefreshJWT(authorization as string);
-    console.log("This si decoded", decoded);
     // 3. extract email and get user by email
     if (decoded?.email) {
       // 4. check fif the user is active
@@ -61,7 +60,6 @@ export const refreshAuth = async (
         email: decoded.email,
         refreshJWT: authorization,
       });
-      console.log("this is user", user);
       if (user?._id && user?.status === "active") {
         // create new accessJWT
         const accessJWT = await createAccessJWT(decoded.email);
