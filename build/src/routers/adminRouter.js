@@ -165,10 +165,8 @@ router.put("/", authMiddleware_1.auth, multerMiddleware_1.upload.single("profile
 }));
 router.put("/change-password", authMiddleware_1.auth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log(req.body);
         const { newPassword, oldPassword } = req.body;
         const user = req.userInfo;
-        console.log(user);
         const isMatched = (0, bcrypt_1.checkPassword)(oldPassword, (user === null || user === void 0 ? void 0 : user.password) || "");
         if (isMatched) {
             const result = yield (0, adminModel_1.updateById)((user === null || user === void 0 ? void 0 : user._id) || "", {
@@ -300,19 +298,16 @@ router.post("/logoutUser", (req, res, next) => __awaiter(void 0, void 0, void 0,
 router.post("/request-otp", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield (0, adminModel_1.getAdminByEmail)(req.body.email);
-        if (user) {
-            if (user === null || user === void 0 ? void 0 : user._id) {
-                const otp = (0, otpGenerator_1.generateOTP)();
-                if (otp) {
-                    const obj = {
-                        token: otp,
-                        associate: req.body.email,
-                    };
-                    const result = yield (0, sessionModel_1.insertNewSession)(obj);
-                    if (result._id) {
-                        console.log("new result inserted");
-                        yield (0, nodeMailer_1.sendOTPNotification)(user, otp);
-                    }
+        if (user === null || user === void 0 ? void 0 : user._id) {
+            const otp = (0, otpGenerator_1.generateOTP)();
+            if (otp) {
+                const obj = {
+                    token: otp,
+                    associate: req.body.email,
+                };
+                const result = yield (0, sessionModel_1.insertNewSession)(obj);
+                if (result._id) {
+                    yield (0, nodeMailer_1.sendOTPNotification)(user, otp);
                 }
             }
         }
@@ -325,16 +320,33 @@ router.post("/request-otp", (req, res, next) => __awaiter(void 0, void 0, void 0
         next(error);
     }
 }));
+router.post("/verify-otp", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.body);
+    const { email, otp } = req.body;
+    const tokenMatch = yield (0, sessionModel_1.findOneByFilterAndDelete)({
+        associate: email,
+        token: otp,
+    });
+    if (tokenMatch === null || tokenMatch === void 0 ? void 0 : tokenMatch._id) {
+        return res.status(201).json({
+            status: "success",
+            message: `Your token is verified`,
+            token: { accessJWT: yield (0, jwt_1.createAccessJWT)(email) },
+        });
+    }
+    else {
+        res.status(401).json({
+            status: "failure",
+            message: "wrong otp provided",
+        });
+    }
+}));
 router.post("/change-password", authMiddleware_1.auth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { email, otp, password } = req.body;
+        const { email, password } = req.body;
         const user = yield (0, adminModel_1.getAdminByEmail)(email);
         const newPassword = (0, bcrypt_1.hashPassword)(password);
         if (user === null || user === void 0 ? void 0 : user._id) {
-            const result = yield (0, sessionModel_1.findOneByFilterAndDelete)({
-                associate: email,
-                token: otp,
-            });
             const isUpdated = yield (0, adminModel_1.updateById)(user._id, { password: newPassword });
             if (isUpdated === null || isUpdated === void 0 ? void 0 : isUpdated._id) {
                 yield (0, nodeMailer_1.sendPassWordChangedAlert)(user);

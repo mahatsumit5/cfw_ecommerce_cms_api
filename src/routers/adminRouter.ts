@@ -24,6 +24,7 @@ import { v4 as uuidv4 } from "uuid";
 import { createAccessJWT, createRefreshJWT } from "../utils/jwt";
 import { auth, refreshAuth } from "../middleware/authMiddleware";
 import {
+  CheckToken,
   findOneAndDelete,
   findOneByFilterAndDelete,
   insertNewSession,
@@ -139,10 +140,8 @@ router.put("/", auth, upload.single("profile"), async (req, res, next) => {
 });
 router.put("/change-password", auth, async (req, res, next) => {
   try {
-    console.log(req.body);
     const { newPassword, oldPassword } = req.body;
     const user = req.userInfo;
-    console.log(user);
 
     const isMatched = checkPassword(oldPassword, user?.password || "");
 
@@ -289,23 +288,22 @@ router.post("/logoutUser", async (req, res, next) => {
 router.post("/request-otp", async (req, res, next) => {
   try {
     const user = await getAdminByEmail(req.body.email);
-    if (user) {
-      if (user?._id) {
-        const otp = generateOTP();
-        if (otp) {
-          const obj = {
-            token: otp,
-            associate: req.body.email,
-          };
-          const result = await insertNewSession(obj);
 
-          if (result._id) {
-            console.log("new result inserted");
-            await sendOTPNotification(user, otp);
-          }
+    if (user?._id) {
+      const otp = generateOTP();
+      if (otp) {
+        const obj = {
+          token: otp,
+          associate: req.body.email,
+        };
+        const result = await insertNewSession(obj);
+
+        if (result._id) {
+          await sendOTPNotification(user, otp);
         }
       }
     }
+
     res.json({
       status: "success",
       message: "Check your email for verfication code",
@@ -314,18 +312,34 @@ router.post("/request-otp", async (req, res, next) => {
     next(error);
   }
 });
+router.post("/verify-otp", async (req, res, next) => {
+  console.log(req.body);
+  const { email, otp } = req.body;
+  // const temporaryToken = await createAccessJWT(email);
+  const tokenMatch = await findOneByFilterAndDelete({
+    associate: email,
+    token: otp,
+  });
+  if (tokenMatch?._id) {
+    return res.status(201).json({
+      status: "success",
+      message: `Your token is verified`,
+      token: { accessJWT: await createAccessJWT(email) },
+    });
+  } else {
+    res.status(401).json({
+      status: "failure",
+      message: "wrong otp provided",
+    });
+  }
+});
 
 router.post("/change-password", auth, async (req, res, next) => {
   try {
-    const { email, otp, password } = req.body;
+    const { email, password } = req.body;
     const user = await getAdminByEmail(email);
     const newPassword = hashPassword(password);
     if (user?._id) {
-      const result = await findOneByFilterAndDelete({
-        associate: email,
-        token: otp,
-      });
-
       const isUpdated = await updateById(user._id, { password: newPassword });
       if (isUpdated?._id) {
         await sendPassWordChangedAlert(user);
