@@ -138,6 +138,46 @@ router.put("/", auth, upload.single("profile"), async (req, res, next) => {
     next(error);
   }
 });
+router.put(
+  "/update-profile",
+  auth,
+  upload.single("profile"),
+  async (req, res, next) => {
+    try {
+      const { password, email, ...rest } = req.body;
+      if (!email || !password) {
+        throw new Error("Email or password is required");
+      }
+      const user = await getAdminByEmail(email);
+      if (!user) {
+        throw new Error("No admin with this email found!");
+      }
+      const passwordMatch = checkPassword(password, user.password as string);
+      if (passwordMatch) {
+        if (req.file?.path) {
+          const data = await uploadFile(req.file);
+          rest.profile = data?.Location;
+        }
+        const result = await updateUser(rest);
+
+        result?._id
+          ? res.json({
+              status: "success",
+              message: "User updated",
+              imageToDelete: req?.file ? req.file.filename : "",
+            })
+          : res.json({
+              status: "error",
+              message: "error coming from model",
+            });
+      } else {
+        throw new Error("Incorrect password");
+      }
+    } catch (error: Error | any) {
+      next(error);
+    }
+  }
+);
 router.put("/change-password", auth, async (req, res, next) => {
   try {
     const { newPassword, oldPassword } = req.body;

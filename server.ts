@@ -7,7 +7,7 @@ import express, {
 } from "express";
 import { mongoConnect } from "./src/config/mongoConfig";
 const app: Application = express();
-const PORT: Number = Number(process.env.PORT) || 8000;
+const PORT: Number = Number(process.env.PORT) || 8080;
 import { config } from "dotenv";
 config(); //using dotenv to process dotenv key
 // Middleware

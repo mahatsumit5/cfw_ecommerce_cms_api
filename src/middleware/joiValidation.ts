@@ -26,6 +26,7 @@ export const newAdminValidation = (
         })
         .required(),
       password: SHORTSTEREQ.min(8),
+      address: Joi.string().min(5),
 
       //check data agains the rule
     });
