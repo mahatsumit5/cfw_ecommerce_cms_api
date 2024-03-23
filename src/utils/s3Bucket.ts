@@ -14,7 +14,6 @@ const uploadFile = (file: Express.Multer.File) => {
     secretAccessKey: secretKey,
   });
   try {
-    console.log(file.path);
     const fileStream = fs.createReadStream(file.path);
 
     const uploadParams = {
@@ -23,8 +22,8 @@ const uploadFile = (file: Express.Multer.File) => {
       Key: file.filename,
     };
     return s3.upload(uploadParams).promise();
-  } catch (error) {
-    console.log(error);
+  } catch (error: Error | any) {
+    throw new Error(error.message);
   }
 };
 
