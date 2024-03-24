@@ -16,7 +16,7 @@ import cors from "cors";
 
 app.use(cors()); //cross origin resources sharing for connection between client and server
 app.use(morgan("tiny")); // for development purpose to see
-app.use(express.json({ limit: "10M" })); //send data in json format to frontEnd
+app.use(express.json()); //send data in json format to frontEnd
 mongoConnect(); //connecting to mongoDB
 
 import path from "path";
