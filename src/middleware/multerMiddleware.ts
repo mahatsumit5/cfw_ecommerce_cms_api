@@ -9,7 +9,6 @@ const storage = multer.diskStorage({
   },
   //what name do you wnat to give
   filename: (req, file, cb) => {
-    //rename fileName
     const fileName = Date.now() + "-" + file.originalname;
     cb(null, fileName);
   },
