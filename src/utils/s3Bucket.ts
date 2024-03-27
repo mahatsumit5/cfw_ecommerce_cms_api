@@ -1,5 +1,4 @@
 import S3 from "aws-sdk/clients/s3.js";
-import { error } from "console";
 import fs from "fs";
 
 //upload file to s3
@@ -28,7 +27,7 @@ const uploadFile = (file: Express.Multer.File) => {
     throw new Error(error.message);
   }
 };
-
+export default uploadFile;
 export const deleteFile = (file: string) => {
   const bucketName = process.env.AWS_BUCKET_NAME as string;
   const region = process.env.AWS_REGION;
@@ -54,23 +53,26 @@ export const deleteFile = (file: string) => {
     console.log(error);
   }
 };
-export default uploadFile;
+
 // download a file from s3
 export const getObject = async () => {
   const bucketName = (process.env.AWS_BUCKET_NAME as string) || "";
   const region = process.env.AWS_REGION;
   const accessKey = process.env.AWS_ACCESS_KEY;
   const secretKey = process.env.AWS_SECRET_KEY;
-
   const s3 = new S3({
     region,
     accessKeyId: accessKey,
     secretAccessKey: secretKey,
   });
-  s3.getObject({ Bucket: bucketName, Key: "sdfdsf" }, (error, data) => {
-    if (error) console.log(error);
-    else console.log(data);
-  });
+  const params = {
+    Bucket: bucketName,
+  };
+  try {
+    const data = await s3.listObjectsV2(params).promise();
+    console.log(data);
+  } catch (error) {
+    console.log(error);
+  }
 };
-
 getObject();
