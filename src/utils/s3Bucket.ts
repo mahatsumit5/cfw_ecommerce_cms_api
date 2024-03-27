@@ -72,5 +72,3 @@ export const getObject = async () => {
     else console.log(data);
   });
 };
-
-getObject();
