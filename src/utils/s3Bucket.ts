@@ -75,4 +75,3 @@ export const getObject = async () => {
     console.log(error);
   }
 };
-getObject();
