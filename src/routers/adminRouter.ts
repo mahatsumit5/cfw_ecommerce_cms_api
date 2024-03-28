@@ -24,14 +24,12 @@ import { v4 as uuidv4 } from "uuid";
 import { createAccessJWT, createRefreshJWT } from "../utils/jwt";
 import { auth, refreshAuth } from "../middleware/authMiddleware";
 import {
-  CheckToken,
   findOneAndDelete,
   findOneByFilterAndDelete,
   insertNewSession,
 } from "../model/session/sessionModel";
 import { generateOTP } from "../middleware/otpGenerator";
-import { upload } from "../middleware/multerMiddleware";
-import uploadFile, { deleteFile } from "../utils/s3Bucket";
+import { upload } from "../middleware/S3multerMiddleware";
 import { IUser } from "../model/admin/adminSchema";
 const router = express.Router();
 
@@ -87,57 +85,6 @@ router.post("/", newAdminValidation, async (req, res, next) => {
   }
 });
 // update user
-router.put("/", auth, upload.single("profile"), async (req, res, next) => {
-  try {
-    let passwordMatched;
-    let result;
-    const { ID, profile, password, email, ...rest } = req.body;
-    if (req.file?.path) {
-      const data = await uploadFile(req.file);
-      rest.profile = data?.Location;
-    }
-
-    const user = await getAdminByEmail(email);
-    if (ID) {
-      const s3ImageKey = profile.slice(57);
-      result = await updateUser({
-        _id: ID,
-        profile:
-          "https://cfw-image-bucket.s3.ap-southeast-2.amazonaws.com/default.jpg",
-      });
-      s3ImageKey !== "default.jpg" && deleteFile(s3ImageKey);
-    } else {
-      passwordMatched = checkPassword(password, user?.password as string);
-    }
-
-    if (passwordMatched) {
-      const result = await updateUser(rest);
-
-      result?._id
-        ? res.json({
-            status: "success",
-            message: "User updated",
-            imageToDelete: req?.file ? req.file.filename : "",
-          })
-        : res.json({
-            status: "error",
-            message: "error coming from model",
-          });
-      return;
-    }
-    result?._id
-      ? res.json({
-          status: "success",
-          message: "Profile picture deleted",
-        })
-      : res.json({
-          status: "error",
-          message: "Incorrect password",
-        });
-  } catch (error: Error | any) {
-    next(error);
-  }
-});
 router.put(
   "/update-profile",
   auth,
@@ -154,9 +101,9 @@ router.put(
       }
       const passwordMatch = checkPassword(password, user.password as string);
       if (passwordMatch) {
-        if (req.file?.path) {
-          const data = await uploadFile(req.file);
-          rest.profile = data?.Location;
+        if (req.file) {
+          const location = req.file.location;
+          rest.profile = location;
         }
         const result = await updateUser(rest);
 
@@ -164,7 +111,6 @@ router.put(
           ? res.json({
               status: "success",
               message: "User updated",
-              imageToDelete: req?.file ? req.file.filename : "",
             })
           : res.json({
               status: "error",

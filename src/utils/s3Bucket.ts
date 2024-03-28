@@ -1,4 +1,6 @@
+import { AWSError } from "aws-sdk";
 import S3 from "aws-sdk/clients/s3.js";
+import { NextFunction, Request, Response } from "express";
 import fs from "fs";
 
 //upload file to s3
@@ -28,7 +30,12 @@ const uploadFile = (file: Express.Multer.File) => {
   }
 };
 export default uploadFile;
-export const deleteFile = (file: string) => {
+
+export const deleteS3BucketImage = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const bucketName = process.env.AWS_BUCKET_NAME as string;
   const region = process.env.AWS_REGION;
   const accessKey = process.env.AWS_ACCESS_KEY;
@@ -42,20 +49,25 @@ export const deleteFile = (file: string) => {
   try {
     const deleteParams = {
       Bucket: bucketName,
-      Key: file,
+      Key: req.body.key,
     };
-    return s3.deleteObject(deleteParams, function (err, data) {
-      if (err) {
-        console.log(err);
+    s3.deleteObject(deleteParams, (err: AWSError, data) => {
+      if (err) throw new Error(err.message);
+      else {
+        return res.json({
+          status: "success",
+          message: "Image deleted",
+          data: JSON.stringify(data),
+        });
       }
     });
-  } catch (error) {
-    console.log(error);
+  } catch (error: Error | any) {
+    next(error);
   }
 };
 
 // download a file from s3
-export const getObject = async () => {
+export const getAllUploadedImages = (maxKeys: number) => {
   const bucketName = (process.env.AWS_BUCKET_NAME as string) || "";
   const region = process.env.AWS_REGION;
   const accessKey = process.env.AWS_ACCESS_KEY;
@@ -65,13 +77,11 @@ export const getObject = async () => {
     accessKeyId: accessKey,
     secretAccessKey: secretKey,
   });
-  const params = {
-    Bucket: bucketName,
-  };
-  try {
-    const data = await s3.listObjectsV2(params).promise();
-    console.log(data);
-  } catch (error) {
-    console.log(error);
-  }
+
+  return s3
+    .listObjectsV2({
+      MaxKeys: maxKeys,
+      Bucket: bucketName,
+    })
+    .promise();
 };

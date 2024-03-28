@@ -12,8 +12,7 @@ import {
   newProductValidation,
   updateProductValidation,
 } from "../middleware/joiValidation";
-import { upload } from "../middleware/multerMiddleware";
-import uploadFile, { deleteFile } from "../utils/s3Bucket";
+import { upload } from "../middleware/S3multerMiddleware";
 
 const router = express.Router();
 
@@ -23,31 +22,25 @@ router.post(
   newProductValidation,
   async (req, res, next) => {
     try {
-      const files: Express.Multer.File[] = req.files as Express.Multer.File[];
-      const img = files?.map((item: Express.Multer.File) => item.filename);
-
-      if (req.files?.length) {
-        const arg = files.map(async (element: Express.Multer.File) => {
-          const data = await uploadFile(element);
-          return data?.Location;
-        });
-        req.body.images = await Promise.all(arg);
+      if (req?.files?.length) {
+        const files = req.files as Express.MulterS3.File[];
+        req.body.images = files.map(
+          (item: Express.MulterS3.File) => item.location
+        );
+        req.body.thumbnail = req.body.images[0];
+        req.body.slug = slugify(req.body.title, { lower: true, trim: true });
+        const result = await addProduct(req.body);
+        result?._id
+          ? res.json({
+              status: "success",
+              message: "New product Sucessfully added",
+              data: result,
+            })
+          : res.json({
+              status: "error",
+              message: "Unable to add new category",
+            });
       }
-      req.body.thumbnail = req.body.images[0];
-      req.body.slug = slugify(req.body.title, { lower: true, trim: true });
-
-      const result = await addProduct(req.body);
-
-      result?._id
-        ? res.json({
-            status: "success",
-            message: "New product Sucessfully added",
-            imagesToDelete: img,
-          })
-        : res.json({
-            status: "error",
-            message: "Unable to add new category",
-          });
     } catch (error: Error | any) {
       if (error.message.includes("E11000 duplicate key error")) {
         error.statusCode = 200;
@@ -76,27 +69,12 @@ router.put(
   updateProductValidation,
   async (req, res, next) => {
     try {
-      const files: Express.Multer.File[] = req.files as Express.Multer.File[];
-
-      const { _id, images } = req.body;
-
       if (req.files?.length) {
-        const product = await getProductById(_id);
-        if (product?.images) {
-          for (let i = 0; i < product.images.length; i++) {
-            if (images.indexOf(product.images[i]) === -1) {
-              deleteFile(product.images[i].slice(57));
-            }
-          }
-        }
-        const newImages = files.map(async (item: Express.Multer.File) => {
-          const data = await uploadFile(item);
-          return data?.Location;
-        });
-        req.body.images = [
-          ...req.body.images,
-          ...(await Promise.all(newImages)),
-        ];
+        const files = req.files as Express.MulterS3.File[];
+        const newImages = files.map(
+          (file: Express.MulterS3.File) => file.location
+        );
+        req.body.images = [...req.body.images, ...newImages];
       }
 
       const result = await updateProductById(req.body);
@@ -105,7 +83,6 @@ router.put(
         ? res.json({
             status: "success",
             message: "updated Successfull",
-            imagesToDelete: files.map((item: Express.Multer.File) => item),
           })
         : res.json({
             status: "error",
@@ -121,8 +98,6 @@ router.delete("/:_id", async (req, res, next) => {
   try {
     const { _id } = req.params;
     const data = await getProductById(_id);
-
-    data?.images.map((img) => deleteFile(img.slice(57)));
 
     const result = await deleteProductById(_id);
     result?._id

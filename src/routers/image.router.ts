@@ -1,22 +1,15 @@
 import { Router } from "express";
-import { upload } from "../middleware/multerMiddleware";
-import uploadFile from "../utils/s3Bucket";
+import { upload } from "../middleware/S3multerMiddleware";
 const router = Router();
 
 router.post("/", upload.single("image"), async (req, res, next) => {
   try {
-    if (req.file) {
-      const { Location } = await uploadFile(req.file);
-      Location
-        ? res.json({
-            status: "success",
-            message: "Upload Successfull",
-            Location,
-          })
-        : res.json({
-            status: "error",
-            message: "Something went wrong! Please Try Again.",
-          });
+    if (req?.file) {
+      res.json({
+        status: "success",
+        message: "Upload Successfull",
+        location: req.file.location,
+      });
     } else {
       return res.json({
         status: "error",
