@@ -50,7 +50,7 @@ app.get("/*", (req, res: Response) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on port http://localhost:${PORT}`);
+  console.log(`Server running on port http://127.0.0.1:${PORT}`);
 });
 app.use(
   (error: CustomError, req: Request, res: Response, next: NextFunction) => {
