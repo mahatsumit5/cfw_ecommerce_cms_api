@@ -139,10 +139,10 @@ export const updateProductValidation = (
   next: NextFunction
 ) => {
   try {
-    console.log(req.body);
-    const { _id, status, title } = req.body;
+    const { _id, status, title, size, color } = req.body;
+    req.body.size = [...size];
+    req.body.color = [...color];
     if (!title) {
-      console.log("no data");
       next();
       return;
     }

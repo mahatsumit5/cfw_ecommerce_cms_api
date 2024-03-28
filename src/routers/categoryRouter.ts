@@ -7,8 +7,6 @@ import {
   updateCatagory,
 } from "../model/categories/categoryModel";
 import slugify from "slugify";
-import { upload } from "../middleware/multerMiddleware";
-import uploadFile, { deleteFile } from "../utils/s3Bucket";
 const router = express.Router();
 
 router.get("/:_id?", async (req, res, next) => {
@@ -75,7 +73,7 @@ router.delete("/", async (req, res, next) => {
     if (!category?.image) {
       throw new Error("category image not found");
     }
-    deleteFile(category.image.slice(57));
+
     const result = await deleteCategory(_id);
     result?._id
       ? res.json({

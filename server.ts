@@ -33,6 +33,7 @@ import productRouter from "./src/routers/productRouter";
 import orderRouter from "./src/routers/orderRouter";
 import parentCatRouter from "./src/routers/parentCatRouter";
 import queryrouter from "./src/routers/query.router";
+import awsRouter from "./src/routers/s3.router";
 import imageRouter from "./src/routers/image.router";
 import { CustomError } from "./src/types";
 app.use("/api/v1/admin", adminRouter);
@@ -43,6 +44,7 @@ app.use("/api/v1/parentCat", auth, parentCatRouter);
 app.use("/api/v1/order", auth, orderRouter);
 app.use("/api/v1/query", auth, queryrouter);
 app.use("/api/v1/image", auth, imageRouter);
+app.use("/api/v1/aws", auth, awsRouter);
 
 app.get("/*", (req, res: Response) => {
   res.json({
