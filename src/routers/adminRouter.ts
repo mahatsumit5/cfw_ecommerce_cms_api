@@ -102,8 +102,8 @@ router.put(
       const passwordMatch = checkPassword(password, user.password as string);
       if (passwordMatch) {
         if (req.file) {
-          const location = req.file.location;
-          rest.profile = location;
+          const file = req.file as Express.MulterS3.File;
+          rest.profile = file.location;
         }
         const result = await updateUser(rest);
 
