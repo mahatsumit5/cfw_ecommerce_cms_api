@@ -1,30 +1,19 @@
-import express, {
-  ErrorRequestHandler,
-  Application,
-  Request,
-  Response,
-  NextFunction,
-} from "express";
+import express, { Application, Request, Response, NextFunction } from "express";
 import { mongoConnect } from "./src/config/mongoConfig";
 const app: Application = express();
-const PORT: Number = Number(process.env.PORT) || 8080;
+const PORT: number = Number(process.env.PORT) || 8080;
+const ip = "192.168.20.13";
 import { config } from "dotenv";
-config(); //using dotenv to process dotenv key
-// Middleware
+config();
+
 import morgan from "morgan";
 import cors from "cors";
 
-app.use(cors()); //cross origin resources sharing for connection between client and server
-app.use(morgan("tiny")); // for development purpose to see
-app.use(express.json()); //send data in json format to frontEnd
-mongoConnect(); //connecting to mongoDB
+app.use(cors());
+app.use(morgan("tiny"));
+app.use(express.json());
+mongoConnect();
 
-import path from "path";
-
-const directory: string = path.resolve();
-// convert public to static
-app.use(express.static(path.join(directory + "/public")));
-// api
 import adminRouter from "./src/routers/adminRouter";
 import categoryRouter from "./src/routers/categoryRouter";
 import paymentRouter from "./src/routers/paymentRouter";
@@ -52,10 +41,13 @@ app.get("/*", (req, res: Response) => {
     message: "Welcome to Content Management System API",
   });
 });
-
-app.listen(PORT, () => {
-  console.log(`Server running on port http://127.0.0.1:${PORT}`);
-});
+process.env.NODE_ENV === "development"
+  ? app.listen(PORT, ip, () => {
+      console.log(`Your Server is running on http://${ip}:${PORT}`);
+    })
+  : app.listen(PORT, () => {
+      console.log(`Your Server is running `);
+    });
 app.use(
   (error: CustomError, req: Request, res: Response, next: NextFunction) => {
     const statusCode = error.statusCode || 500;
