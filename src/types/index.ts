@@ -37,7 +37,7 @@ declare global {
       CLIENT_ID: string;
       ISSUER_BASE_URL: string;
       SECRET: string;
-      NODE_ENV: string;
+      NODE_ENV: "development" | "production";
     }
   }
 }

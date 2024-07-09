@@ -67,3 +67,4 @@ app.use(
     });
   }
 );
+console.log(__dirname);
