@@ -4,6 +4,11 @@ import adminSchema, { IUser } from "./adminSchema";
 export const addAdmin = (userObj: object) => {
   return new adminSchema(userObj).save();
 };
+
+export const test = () => {
+  console.log("object");
+};
+test();
 export const deleteAdmin = (_id: string) => {
   return adminSchema.findByIdAndDelete({ _id });
 };

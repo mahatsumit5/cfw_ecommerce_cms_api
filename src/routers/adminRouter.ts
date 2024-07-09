@@ -22,7 +22,8 @@ import {
 } from "../utils/nodeMailer";
 import { v4 as uuidv4 } from "uuid";
 import { createAccessJWT, createRefreshJWT } from "../utils/jwt";
-import { auth, refreshAuth } from "../middleware/authMiddleware";
+import { refreshAuth } from "../middleware/authMiddleware";
+import { requiresAuth } from "express-openid-connect";
 import {
   findOneAndDelete,
   findOneByFilterAndDelete,
@@ -33,18 +34,19 @@ import { upload } from "../middleware/S3multerMiddleware";
 import { IUser } from "../model/admin/adminSchema";
 const router = express.Router();
 
-router.get("/", auth, async (req, res, next) => {
+router.get("/", requiresAuth(), async (req, res, next) => {
   try {
+    req.oidc.user;
     res.json({
       status: "success",
       message: "userInfo",
-      user: req.userInfo, //comes from auth middleware
+      user: req.oidc.user, //comes from requiresAuth(), middleware
     });
   } catch (error: Error | any) {
     next(error);
   }
 });
-router.get("/get-admins", auth, async (req, res, next) => {
+router.get("/get-admins", requiresAuth(), async (req, res, next) => {
   try {
     const admins = await getAdmin();
     console.log(admins);
@@ -87,7 +89,7 @@ router.post("/", newAdminValidation, async (req, res, next) => {
 // update user
 router.put(
   "/update-profile",
-  auth,
+  requiresAuth(),
   upload.single("profile"),
   async (req, res, next) => {
     try {
@@ -124,7 +126,7 @@ router.put(
     }
   }
 );
-router.put("/change-password", auth, async (req, res, next) => {
+router.put("/change-password", requiresAuth(), async (req, res, next) => {
   try {
     const { newPassword, oldPassword } = req.body;
     const user = req.userInfo;
@@ -161,6 +163,7 @@ router.put("/change-password", auth, async (req, res, next) => {
 router.post("/login", loginValidation, async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    console.log(req.body);
     //find the user by email
     const user = await getAdminByEmail(email);
     if (user?._id) {
@@ -317,7 +320,7 @@ router.post("/verify-otp", async (req, res, next) => {
   }
 });
 
-router.post("/change-password", auth, async (req, res, next) => {
+router.post("/change-password", requiresAuth(), async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await getAdminByEmail(email);

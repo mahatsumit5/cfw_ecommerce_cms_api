@@ -1,19 +1,10 @@
 import express, { Application, Request, Response, NextFunction } from "express";
-import { mongoConnect } from "./src/config/mongoConfig";
-const app: Application = express();
-const PORT: number = Number(process.env.PORT) || 8080;
-const ip = "192.168.20.13";
 import { config } from "dotenv";
 config();
+import auth0 from "express-openid-connect";
 
-import morgan from "morgan";
-import cors from "cors";
-
-app.use(cors());
-app.use(morgan("tiny"));
-app.use(express.json());
+import { mongoConnect } from "./src/config/mongoConfig";
 mongoConnect();
-
 import adminRouter from "./src/routers/adminRouter";
 import categoryRouter from "./src/routers/categoryRouter";
 import paymentRouter from "./src/routers/paymentRouter";
@@ -25,25 +16,42 @@ import queryrouter from "./src/routers/query.router";
 import awsRouter from "./src/routers/s3.router";
 import imageRouter from "./src/routers/image.router";
 import { CustomError } from "./src/types";
-app.use("/api/v1/admin", adminRouter);
-app.use("/api/v1/category", auth, categoryRouter);
-app.use("/api/v1/payment", auth, paymentRouter);
-app.use("/api/v1/product", auth, productRouter);
-app.use("/api/v1/parentCat", auth, parentCatRouter);
-app.use("/api/v1/order", auth, orderRouter);
-app.use("/api/v1/query", auth, queryrouter);
-app.use("/api/v1/image", auth, imageRouter);
-app.use("/api/v1/aws", auth, awsRouter);
 
-app.get("/*", (req, res: Response) => {
-  res.json({
-    status: "success",
-    message: "Welcome to Content Management System API",
-  });
+const app: Application = express();
+const PORT: number = Number(process.env.PORT) || 8000;
+
+import cors from "cors";
+import path from "path";
+const options = {
+  authRequired: false,
+  auth0Logout: true,
+  baseURL: process.env.BASE_URL,
+  clientID: process.env.CLIENT_ID,
+  issuerBaseURL: process.env.ISSUER_BASE_URL,
+  secret: process.env.SECRET,
+};
+app.use(auth0.auth(options));
+app.use(cors());
+app.use(auth0.requiresAuth());
+
+app.use(express.json());
+
+app.use("/api/v1/admin", adminRouter);
+app.use("/api/v1/category", categoryRouter);
+app.use("/api/v1/payment", paymentRouter);
+app.use("/api/v1/product", productRouter);
+app.use("/api/v1/parentCat", parentCatRouter);
+app.use("/api/v1/order", orderRouter);
+app.use("/api/v1/query", queryrouter);
+app.use("/api/v1/image", imageRouter);
+app.use("/api/v1/aws", awsRouter);
+app.use(express.static(__dirname + "/dist"));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 process.env.NODE_ENV === "development"
-  ? app.listen(PORT, ip, () => {
-      console.log(`Your Server is running on http://${ip}:${PORT}`);
+  ? app.listen(PORT, () => {
+      console.log(`Your Server is running on http://localhost:${PORT}`);
     })
   : app.listen(PORT, () => {
       console.log(`Your Server is running `);

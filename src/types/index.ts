@@ -19,6 +19,27 @@ declare global {
       userInfo?: IUser;
     }
   }
+  namespace NodeJS {
+    interface ProcessEnv {
+      MONGO_URI: string;
+      SMTP_HOST: string;
+      SMTP_PORT: string;
+      SMTP_USER: string;
+      SMTP_PASS: string;
+      WEB_DOMAIN: string;
+      JWT_ACCESS_SECRET: string;
+      JWT_REFRESH_SECRET: string;
+      AWS_BUCKET_NAME: string;
+      AWS_REGION: string;
+      AWS_ACCESS_KEY: string;
+      AWS_SECRET_KEY: string;
+      BASE_URL: string;
+      CLIENT_ID: string;
+      ISSUER_BASE_URL: string;
+      SECRET: string;
+      NODE_ENV: string;
+    }
+  }
 }
 
 export interface CustomError extends Error {
