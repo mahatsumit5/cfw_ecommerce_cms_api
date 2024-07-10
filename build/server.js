@@ -43,12 +43,7 @@ app.use("/api/v1/order", orderRouter_1.default);
 app.use("/api/v1/query", query_router_1.default);
 app.use("/api/v1/image", image_router_1.default);
 app.use("/api/v1/aws", s3_router_1.default);
-app.use(express_1.default.static(__dirname + "/dist"));
-app.get("*", (req, res) => {
-    process.env.NODE_ENV === "development"
-        ? res.sendFile(path_1.default.join(__dirname, "dist", "index.html"))
-        : res.sendFile(path_1.default.join(__dirname, "../dist", "index.html"));
-});
+app.use(express_1.default.static(path_1.default.join(__dirname + "/dist")));
 process.env.NODE_ENV === "development"
     ? app.listen(PORT, () => {
         console.log(`Your Server is running on http://localhost:${PORT}`);
