@@ -46,7 +46,7 @@ app.use("/api/v1/query", queryrouter);
 app.use("/api/v1/image", imageRouter);
 app.use("/api/v1/aws", awsRouter);
 app.use(express.static(__dirname + "/dist"));
-app.get("*", (req, res) => {
+app.get("/*", (req, res) => {
   process.env.NODE_ENV === "development"
     ? res.sendFile(path.join(__dirname, "dist", "index.html"))
     : res.sendFile(path.join(__dirname, "../dist", "index.html"));
