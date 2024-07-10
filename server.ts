@@ -45,13 +45,13 @@ app.use("/api/v1/order", orderRouter);
 app.use("/api/v1/query", queryrouter);
 app.use("/api/v1/image", imageRouter);
 app.use("/api/v1/aws", awsRouter);
-app.use(express.static(__dirname + "/dist"));
-app.get("/*", (req, res) => {
-  process.env.NODE_ENV === "development"
-    ? res.sendFile(path.join(__dirname, "dist", "index.html"))
-    : res.sendFile(path.join(__dirname, "../dist", "index.html"));
-  // during production base url is ' /var/app/current/build and have to get back to current to get inside dist folder'
-});
+app.use(express.static(path.join(__dirname + "/dist")));
+// app.get("/", (req, res) => {
+//   process.env.NODE_ENV === "development"
+//     ? res.sendFile(path.join(__dirname, "dist", "index.html"))
+//     : res.sendFile(path.join(__dirname, "../dist", "index.html"));
+//   // during production base url is ' /var/app/current/build and have to get back to current to get inside dist folder'
+// });
 process.env.NODE_ENV === "development"
   ? app.listen(PORT, () => {
       console.log(`Your Server is running on http://localhost:${PORT}`);
