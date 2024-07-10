@@ -4,10 +4,9 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon server.ts",
-    "start": "node build/server.js",
-    "build": "npm install && tsc",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon build/server.js",
+    "start": "npm run build:live",
+    "build:live": "nodemon",
     "git": "npx tsc && git init && git add .  && git commit -m \"production ready\"  && git push"
   },
   "keywords": [],
