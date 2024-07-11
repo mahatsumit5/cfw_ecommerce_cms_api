@@ -36,6 +36,7 @@ app.use(cors());
 app.use(auth0.requiresAuth());
 
 app.use(express.json());
+app.use("/", express.static(path.join(__dirname, "../dist")));
 
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/category", categoryRouter);
@@ -46,7 +47,6 @@ app.use("/api/v1/order", orderRouter);
 app.use("/api/v1/query", queryrouter);
 app.use("/api/v1/image", imageRouter);
 app.use("/api/v1/aws", awsRouter);
-app.use("/", express.static(path.join(__dirname, "../dist")));
 app.use(
   (error: CustomError, req: Request, res: Response, next: NextFunction) => {
     const statusCode = error.statusCode || 500;
