@@ -30,10 +30,6 @@ const options = {
   issuerBaseURL: process.env.ISSUER_BASE_URL,
   secret: process.env.SECRET,
 };
-const index_path =
-  process.env.NODE_ENV === "development"
-    ? path.join(__dirname, "dist")
-    : path.join(__dirname, "../dist");
 
 app.use(auth0.auth(options));
 app.use(cors());
@@ -50,24 +46,7 @@ app.use("/api/v1/order", orderRouter);
 app.use("/api/v1/query", queryrouter);
 app.use("/api/v1/image", imageRouter);
 app.use("/api/v1/aws", awsRouter);
-app.use("/", express.static(index_path));
-
-app.get("/*", (req, res, next) => {
-  try {
-    res.sendFile(path.join(index_path, "index.html"), (err) => {
-      err && res.send(`<h1>Unexpected Error Occured</h1>`);
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-process.env.NODE_ENV === "development"
-  ? app.listen(PORT, () => {
-      console.log(`Your Server is running on http://localhost:${PORT}`);
-    })
-  : app.listen(PORT, () => {
-      console.log(`Your Server is running on ${PORT} `);
-    });
+app.use("/", express.static(path.join(__dirname, "../dist")));
 app.use(
   (error: CustomError, req: Request, res: Response, next: NextFunction) => {
     const statusCode = error.statusCode || 500;
@@ -79,3 +58,15 @@ app.use(
     });
   }
 );
+app.get("/*", (req, res, next) => {
+  try {
+    res.sendFile(path.join(__dirname, "../dist/index.html"), (err) => {
+      err && res.send(`<h1>Unexpected Error Occured</h1>`);
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+app.listen(PORT, () => {
+  console.log(`Your Server is running on http://localhost:${PORT}`);
+});

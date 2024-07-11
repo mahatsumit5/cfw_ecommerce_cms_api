@@ -30,9 +30,6 @@ const options = {
     issuerBaseURL: process.env.ISSUER_BASE_URL,
     secret: process.env.SECRET,
 };
-const index_path = process.env.NODE_ENV === "development"
-    ? path_1.default.join(__dirname, "dist")
-    : path_1.default.join(__dirname, "../dist");
 app.use(express_openid_connect_1.default.auth(options));
 app.use((0, cors_1.default)());
 app.use(express_openid_connect_1.default.requiresAuth());
@@ -46,24 +43,7 @@ app.use("/api/v1/order", orderRouter_1.default);
 app.use("/api/v1/query", query_router_1.default);
 app.use("/api/v1/image", image_router_1.default);
 app.use("/api/v1/aws", s3_router_1.default);
-app.use("/", express_1.default.static(index_path));
-app.get("/*", (req, res, next) => {
-    try {
-        res.sendFile(path_1.default.join(index_path, "index.html"), (err) => {
-            err && res.send(`<h1>Unexpected Error Occured</h1>`);
-        });
-    }
-    catch (error) {
-        next(error);
-    }
-});
-process.env.NODE_ENV === "development"
-    ? app.listen(PORT, () => {
-        console.log(`Your Server is running on http://localhost:${PORT}`);
-    })
-    : app.listen(PORT, () => {
-        console.log(`Your Server is running on ${PORT} `);
-    });
+app.use("/", express_1.default.static(path_1.default.join(__dirname, "../dist")));
 app.use((error, req, res, next) => {
     const statusCode = error.statusCode || 500;
     const statusMessage = error.message || "Internal Server Error";
@@ -72,4 +52,17 @@ app.use((error, req, res, next) => {
         status: "error",
         message: statusMessage,
     });
+});
+app.get("/*", (req, res, next) => {
+    try {
+        res.sendFile(path_1.default.join(__dirname, "../dist/index.html"), (err) => {
+            err && res.send(`<h1>Unexpected Error Occured</h1>`);
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+app.listen(PORT, () => {
+    console.log(`Your Server is running on http://localhost:${PORT}`);
 });
