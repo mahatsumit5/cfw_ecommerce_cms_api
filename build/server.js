@@ -34,6 +34,7 @@ app.use(express_openid_connect_1.default.auth(options));
 app.use((0, cors_1.default)());
 app.use(express_openid_connect_1.default.requiresAuth());
 app.use(express_1.default.json());
+app.use("/", express_1.default.static(path_1.default.join(__dirname, "../dist")));
 app.use("/api/v1/admin", adminRouter_1.default);
 app.use("/api/v1/category", categoryRouter_1.default);
 app.use("/api/v1/payment", paymentRouter_1.default);
@@ -43,7 +44,6 @@ app.use("/api/v1/order", orderRouter_1.default);
 app.use("/api/v1/query", query_router_1.default);
 app.use("/api/v1/image", image_router_1.default);
 app.use("/api/v1/aws", s3_router_1.default);
-app.use("/", express_1.default.static(path_1.default.join(__dirname, "../dist")));
 app.use((error, req, res, next) => {
     const statusCode = error.statusCode || 500;
     const statusMessage = error.message || "Internal Server Error";

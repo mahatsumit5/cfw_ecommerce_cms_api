@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon build/server.js",
-    "start": "npm run build:live",
+    "start": "node build/server.js",
     "build:live": "nodemon",
     "build": "npx tsc",
     "git": "npx tsc && git init && git add .  && git commit -m \"production ready\"  && git push"
